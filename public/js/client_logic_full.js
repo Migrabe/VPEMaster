@@ -1040,6 +1040,16 @@ function enforceOutputStateRules(st, prevState) {
     clearStateField(st, "angle");
   }
 
+  // P12: NBP Engine Capability Gates
+  if (isNBPModel(st.aiModel)) {
+    const effAR = getEffectiveAspectRatio();
+    if (effAR && !NBP_ALLOWED_ASPECT_RATIOS.has(effAR)) {
+      // Clear aspect ratio if not supported by NBP
+      st.aspectRatio = "1:1";
+      st.resolution = "";
+    }
+  }
+
   // P9: Anamorphic lens в†” purpose — last-write-wins
   if (flags.hasAnamorphicLens && st.purpose && !["Cinematic Still", "Advertising campaign"].includes(st.purpose)) {
     if (prev.purpose === st.purpose) {
@@ -1063,8 +1073,17 @@ function enforceOutputStateRules(st, prevState) {
   }
 
   if (flags.photoStyleBlackAndWhite) {
-    st.lighting = (st.lighting || []).filter(v => !isNeonLightToken(v));
-    if (isNeonLightToken(st.lightType)) clearStateField(st, "lightType");
+    const hasNeon = (st.lighting || []).some(isNeonLightToken) || isNeonLightToken(st.lightType);
+    if (hasNeon) {
+      if (prev.photoStyle === st.photoStyle) {
+        // Style was already set, lighting is new -> clear lighting
+        st.lighting = (st.lighting || []).filter(v => !isNeonLightToken(v));
+        if (isNeonLightToken(st.lightType)) clearStateField(st, "lightType");
+      } else {
+        // Style is new, lighting was already set -> clear style
+        clearStateField(st, "photoStyle");
+      }
+    }
   }
 
   // P4: Night в†” Day light mutual exclusion (server-side enforcement)
