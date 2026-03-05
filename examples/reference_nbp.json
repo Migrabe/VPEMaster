@@ -1,8 +1,0 @@
-{
-  "model": "nano-banana-pro",
-  "type": "text-to-image",
-  "prompt": "A cinematic portrait of a woman in a red coat, soft natural light, shallow depth of field.",
-  "resolution": "2K",
-  "aspect_ratio": "16:9",
-  "num_images": 1
-}
