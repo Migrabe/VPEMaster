@@ -63,6 +63,7 @@ Conflict logic runs in **two layers**:
 
 ### 10.1 Engine payload compatibility
 - `negative` prompt field is stripped for `dall-e-3` and `flux` payloads.
+- Engine capabilities (aliases, prompt-format constraints, AR ranges, payload mode, refs support) are loaded from `public/config/engine-capabilities.json` on both client and server.
 
 ### 11. Taxonomy rules (JSON-driven)
 - External rules from `public/config/taxonomy-rules.json`.
@@ -78,6 +79,7 @@ Conflict logic runs in **two layers**:
 ## Server/UI Consistency
 
 - The server prompt engine loads `public/config/taxonomy-rules.json` into VM context.
+- The server prompt engine also injects `public/config/engine-capabilities.json` into VM context so capability gates stay in sync with UI.
 - Runtime pruning is applied server-side via `_pruneConflicts()` → `_applyTaxonomyRules()` → `enforceOutputStateRules()`.
 - `applyPreset()` now calls `_pruneConflicts()` after preset application to ensure state consistency.
 - `_handleToggleMode()` clears `isStandardPresetActive` when any mode is toggled.

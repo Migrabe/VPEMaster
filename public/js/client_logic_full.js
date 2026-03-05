@@ -63,6 +63,209 @@ const modelTips = {
   'nano-banana-pro': 'Nano Banana Pro: быстрая генерация, поддерживает промпты в стиле Stable Diffusion. Оптимизирован для скорости.'
 };
 
+const ENGINE_CAPABILITIES_FALLBACK = {
+  default_model: "nano-banana-pro",
+  aliases: { "nano-banana": "nano-banana-pro" },
+  default_capabilities: {
+    allowed_prompt_formats: ["flat", "structured", "midjourney"],
+    forced_prompt_format: null,
+    supports_negative_prompt: true,
+    supports_reference_upload: true,
+    supports_reference_weight: false,
+    uses_nbp_wrappers: false,
+    payload_mode: "standard",
+    param_panel: "none",
+    default_aspect_ratio: "1:1"
+  },
+  models: {
+    "nano-banana-pro": {
+      allowed_prompt_formats: ["flat", "structured"],
+      allowed_aspect_ratios: ["1:1", "4:3", "3:4", "16:9", "9:16"],
+      default_aspect_ratio: "1:1",
+      uses_nbp_wrappers: true,
+      payload_mode: "nbp",
+      supports_reference_weight: false,
+      param_panel: "none"
+    },
+    "gemini-imagen": {
+      allowed_prompt_formats: ["flat", "structured"],
+      allowed_aspect_ratios: ["1:1", "4:3", "3:4", "16:9", "9:16"],
+      default_aspect_ratio: "1:1",
+      uses_nbp_wrappers: true,
+      payload_mode: "standard",
+      supports_reference_weight: false,
+      param_panel: "none"
+    },
+    "midjourney": {
+      allowed_prompt_formats: ["midjourney"],
+      forced_prompt_format: "midjourney",
+      supports_reference_upload: false,
+      supports_reference_weight: false,
+      param_panel: "midjourney"
+    },
+    "stable-diffusion": {
+      allowed_prompt_formats: ["flat", "structured"],
+      supports_reference_weight: true,
+      param_panel: "stable-diffusion"
+    },
+    "flux": {
+      allowed_prompt_formats: ["flat", "structured"],
+      supports_negative_prompt: false,
+      supports_reference_weight: true,
+      param_panel: "flux"
+    },
+    "dall-e-3": {
+      allowed_prompt_formats: ["flat", "structured"],
+      supports_negative_prompt: false,
+      param_panel: "dall-e-3"
+    },
+    "ideogram": { allowed_prompt_formats: ["flat", "structured"], param_panel: "none" },
+    "chatgpt-image": { allowed_prompt_formats: ["flat", "structured"], param_panel: "none" }
+  }
+};
+
+function sanitizePromptFormat(value) {
+  const fmt = String(value || "").trim();
+  return ["flat", "structured", "midjourney"].includes(fmt) ? fmt : "";
+}
+
+function normalizePromptFormatList(list, fallback) {
+  const normalized = Array.isArray(list)
+    ? list.map(sanitizePromptFormat).filter(Boolean)
+    : [];
+  if (normalized.length) return Array.from(new Set(normalized));
+  return (Array.isArray(fallback) ? fallback : ["flat", "structured"]).slice();
+}
+
+function mergeEngineCapabilities(base, override) {
+  const merged = deepClone(base || {});
+  if (!override || typeof override !== "object") return merged;
+
+  if (typeof override.default_model === "string" && override.default_model.trim()) {
+    merged.default_model = override.default_model.trim();
+  }
+
+  if (override.aliases && typeof override.aliases === "object") {
+    merged.aliases = Object.assign({}, merged.aliases || {}, override.aliases);
+  }
+
+  if (override.default_capabilities && typeof override.default_capabilities === "object") {
+    merged.default_capabilities = Object.assign({}, merged.default_capabilities || {}, override.default_capabilities);
+  }
+
+  if (override.models && typeof override.models === "object") {
+    const nextModels = Object.assign({}, merged.models || {});
+    Object.entries(override.models).forEach(([model, caps]) => {
+      if (!caps || typeof caps !== "object") return;
+      nextModels[model] = Object.assign({}, nextModels[model] || {}, caps);
+    });
+    merged.models = nextModels;
+  }
+
+  return merged;
+}
+
+window.engineCapabilities = mergeEngineCapabilities(
+  ENGINE_CAPABILITIES_FALLBACK,
+  (window.engineCapabilities && typeof window.engineCapabilities === "object") ? window.engineCapabilities : {}
+);
+
+function getEngineCapabilities() {
+  return (window.engineCapabilities && typeof window.engineCapabilities === "object")
+    ? window.engineCapabilities
+    : ENGINE_CAPABILITIES_FALLBACK;
+}
+
+function normalizeAiModelValue(model) {
+  const raw = String(model || "").trim();
+  if (!raw) return "";
+  const aliases = getEngineCapabilities().aliases || {};
+  return aliases[raw] || raw;
+}
+
+function getModelCapabilities(model) {
+  const cfg = getEngineCapabilities();
+  const key = normalizeAiModelValue(model);
+  const defaults = (cfg.default_capabilities && typeof cfg.default_capabilities === "object")
+    ? cfg.default_capabilities
+    : {};
+  const modelCaps = (cfg.models && cfg.models[key] && typeof cfg.models[key] === "object")
+    ? cfg.models[key]
+    : {};
+  const caps = Object.assign({}, defaults, modelCaps);
+  caps.allowed_prompt_formats = normalizePromptFormatList(caps.allowed_prompt_formats, ["flat", "structured"]);
+  caps.forced_prompt_format = sanitizePromptFormat(caps.forced_prompt_format) || null;
+  caps.supports_negative_prompt = caps.supports_negative_prompt !== false;
+  caps.supports_reference_upload = caps.supports_reference_upload !== false;
+  caps.supports_reference_weight = !!caps.supports_reference_weight;
+  caps.uses_nbp_wrappers = !!caps.uses_nbp_wrappers;
+  caps.payload_mode = caps.payload_mode === "nbp" ? "nbp" : "standard";
+  caps.param_panel = typeof caps.param_panel === "string" ? caps.param_panel : "none";
+  caps.allowed_aspect_ratios = Array.isArray(caps.allowed_aspect_ratios)
+    ? caps.allowed_aspect_ratios.map(v => String(v || "").trim()).filter(Boolean)
+    : [];
+  caps.default_aspect_ratio = (typeof caps.default_aspect_ratio === "string" && caps.default_aspect_ratio.trim())
+    ? caps.default_aspect_ratio.trim()
+    : (caps.allowed_aspect_ratios[0] || "1:1");
+  caps.key = key;
+  return caps;
+}
+
+function getDefaultAiModel() {
+  const cfg = getEngineCapabilities();
+  const normalized = normalizeAiModelValue(cfg.default_model || "");
+  return normalized || "nano-banana-pro";
+}
+
+function getModelAllowedAspectRatios(model) {
+  return new Set(getModelCapabilities(model).allowed_aspect_ratios);
+}
+
+function isNBPModel(model) {
+  return getModelCapabilities(model).uses_nbp_wrappers;
+}
+
+function modelSupportsNegativePrompt(model) {
+  return getModelCapabilities(model).supports_negative_prompt;
+}
+
+function modelSupportsReferenceUpload(model) {
+  return getModelCapabilities(model).supports_reference_upload;
+}
+
+function modelSupportsReferenceWeight(model) {
+  return getModelCapabilities(model).supports_reference_weight;
+}
+
+function getModelPayloadMode(model) {
+  return getModelCapabilities(model).payload_mode;
+}
+
+function getModelParamPanel(model) {
+  return getModelCapabilities(model).param_panel;
+}
+
+function normalizePromptFormatForModel(model, promptFormat) {
+  const caps = getModelCapabilities(model);
+  if (caps.forced_prompt_format) return caps.forced_prompt_format;
+  const normalizedCurrent = sanitizePromptFormat(promptFormat) || "flat";
+  if (caps.allowed_prompt_formats.includes(normalizedCurrent)) return normalizedCurrent;
+  return caps.allowed_prompt_formats[0] || "flat";
+}
+
+function loadEngineCapabilities() {
+  return fetch("./config/engine-capabilities.json")
+    .then(r => {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    })
+    .then(data => {
+      window.engineCapabilities = mergeEngineCapabilities(ENGINE_CAPABILITIES_FALLBACK, data || {});
+      state.aiModel = normalizeAiModelValue(state.aiModel || getDefaultAiModel()) || getDefaultAiModel();
+    })
+    .catch(err => console.error("Engine capabilities load err:", err));
+}
+
 // Presets
 const presets = [
   {
@@ -330,7 +533,7 @@ const FASHION_FOOD_STYLES = {
 // =============================================
 const initialState = {
   aiProvider: "groq", apiKey: "",
-  aiModel: "", cameraBody: "", aspectRatio: "", resolution: "", purpose: "", format: "", medium: "", photoStyle: "", cinemaStyle: "", directorStyle: "", artStyle: "", filmStock: "",
+  aiModel: getDefaultAiModel(), cameraBody: "", aspectRatio: "", resolution: "", purpose: "", format: "", medium: "", photoStyle: "", cinemaStyle: "", directorStyle: "", artStyle: "", filmStock: "",
   lens: "", focalLength: "", aperture: "", angle: "", shotSize: "", composition: "", quality: "",
   mood: "",
   lighting: [], lightType: "", lightFX: [], colorPalette: "", skinDetail: [], hairDetail: [], material: [], typography: [],
@@ -413,6 +616,10 @@ class StateManager {
     }
 
     if (mode === "single") {
+      if (group === "aiModel") {
+        value = normalizeAiModelValue(value);
+        this.state.aiModel = normalizeAiModelValue(this.state.aiModel);
+      }
       if (this.state[group] === value) this.state[group] = "";
       else this.state[group] = value;
 
@@ -520,11 +727,7 @@ class StateManager {
 
   _pruneConflicts(prevState) {
     // Keep prompt format and model capabilities in sync.
-    if (this.state.aiModel === "midjourney") {
-      this.state.promptFormat = "midjourney";
-    } else if (this.state.promptFormat === "midjourney") {
-      this.state.promptFormat = "flat";
-    }
+    this.state.promptFormat = normalizePromptFormatForModel(this.state.aiModel, this.state.promptFormat);
 
     // 1. Format constraints: motion blur ? flat only
     if (this.state.promptFormat !== "flat") {
@@ -715,13 +918,6 @@ const MAX_CONSISTENCY_FACE_CONSTRAINTS = [
   "Maintain identical bone structure, skin tone, and facial imperfections like moles and scars across all variations"
 ];
 
-const NBP_MODELS = ["nano-banana-pro", "nano-banana", "gemini-imagen"];
-const NBP_ALLOWED_ASPECT_RATIOS = new Set(["1:1", "4:3", "3:4", "16:9", "9:16"]);
-
-function isNBPModel(model) {
-  return NBP_MODELS.includes(model);
-}
-
 function getEffectiveAspectRatio() {
   return state.grid3x3Mode ? "3:4" : (state.aspectRatio || "");
 }
@@ -758,6 +954,186 @@ function notify(msg, type = "success") {
 
 function wordCount(t) { const s = (t || "").trim(); return s ? s.split(/\s+/).length : 0; }
 function deepClone(o) { return JSON.parse(JSON.stringify(o)); }
+
+const UNDO_STACK_LIMIT = 80;
+const undoState = { stack: [], applying: false };
+
+function stateSignature(snapshot) {
+  try {
+    return JSON.stringify(snapshot);
+  } catch (_) {
+    return "";
+  }
+}
+
+function syncUndoButtonState() {
+  const btn = $("headerUndoBtn");
+  if (!btn) return;
+  const hasSteps = undoState.stack.length > 0;
+  btn.disabled = !hasSteps;
+  btn.setAttribute("aria-disabled", hasSteps ? "false" : "true");
+}
+
+function pushUndoSnapshot(snapshot) {
+  if (!snapshot || undoState.applying) return;
+  const cloned = deepClone(snapshot);
+  const sig = stateSignature(cloned);
+  const last = undoState.stack[undoState.stack.length - 1];
+  if (last && last.sig === sig) return;
+
+  undoState.stack.push({ snapshot: cloned, sig });
+  if (undoState.stack.length > UNDO_STACK_LIMIT) {
+    undoState.stack.shift();
+  }
+  syncUndoButtonState();
+}
+
+function captureUndoSnapshot() {
+  if (undoState.applying) return;
+  pushUndoSnapshot(state);
+}
+
+function shouldCaptureUndoFromTarget(target) {
+  if (!target || !(target instanceof Element)) return false;
+  if (target.closest("#headerUndoBtn, #headerCollapseBtn, #constructorToggleBtn, #copyPromptBtn, #copyJsonBtn, #saveBtn, #saveJsonBtn, #compactBtn")) {
+    return false;
+  }
+  return !!target.closest(".option-btn[data-group], .option-btn[data-preset-index], .option-btn[data-action='addNegative'], .format-tab, .toggle-label, #randomSeedBtn, #clearSeedBtn, #resetBtn, #headerResetBtn, #translateBtn, #enhanceBtn, input, textarea, select, .tag .remove");
+}
+
+function bindUndoCaptureListeners() {
+  if (document.body.dataset.undoCaptureBound === "true") return;
+
+  document.addEventListener("pointerdown", (e) => {
+    if (!shouldCaptureUndoFromTarget(e.target)) return;
+    captureUndoSnapshot();
+  }, true);
+
+  document.addEventListener("beforeinput", (e) => {
+    const target = e.target;
+    if (!target || !(target instanceof Element)) return;
+    if (target.closest("#headerUndoBtn")) return;
+    if (!target.closest("input, textarea, [contenteditable='true']")) return;
+    captureUndoSnapshot();
+  }, true);
+
+  document.addEventListener("keydown", (e) => {
+    if (e.repeat) return;
+    const target = e.target;
+    if (!target || !(target instanceof Element)) return;
+    if (!shouldCaptureUndoFromTarget(target)) return;
+
+    const isEditable = !!target.closest("input, textarea, [contenteditable='true']");
+    const isKeyboardButtonClick = !!target.closest("button") && (e.key === "Enter" || e.key === " ");
+    const isTypingKey = e.key.length === 1 || e.key === "Backspace" || e.key === "Delete" || e.key === "Enter";
+    if ((isEditable && isTypingKey) || isKeyboardButtonClick) {
+      captureUndoSnapshot();
+    }
+  }, true);
+
+  document.body.dataset.undoCaptureBound = "true";
+  syncUndoButtonState();
+}
+
+function syncPromptFormatVisual(fmt) {
+  const labels = { flat: "Flat (Плоский)", structured: "Structured (Структурный)", midjourney: "Midjourney синтаксис" };
+  document.querySelectorAll(".format-tab").forEach((t) => {
+    t.classList.toggle("active", t.dataset.format === fmt);
+  });
+  const labelEl = $("promptFormatLabel");
+  if (labelEl) labelEl.textContent = labels[fmt] || fmt;
+}
+
+function applyStateSnapshot(snapshot) {
+  if (!snapshot || typeof snapshot !== "object") return false;
+
+  const restored = deepClone(snapshot);
+  // Use snapshot itself as "previous" for deterministic conflict resolution on restore.
+  const prevState = deepClone(restored);
+  appState.state = restored;
+  window.state = appState.state;
+  // Canonicalize restored snapshots with the same pruning pipeline used by runtime/server.
+  if (typeof appState._pruneConflicts === "function") {
+    appState._pruneConflicts(prevState);
+  }
+
+  const setValue = (id, value) => {
+    const el = $(id);
+    if (el) el.value = value == null ? "" : String(value);
+  };
+  const setChecked = (id, value) => {
+    const el = $(id);
+    if (el) el.checked = !!value;
+  };
+  const setSlider = (sliderId, labelId, value) => {
+    const slider = $(sliderId);
+    if (slider) slider.value = value;
+    const label = $(labelId);
+    if (label) label.textContent = String(value);
+  };
+
+  setValue("mainSubject", restored.mainSubject || "");
+  setValue("textContent", restored.textContent || "");
+  setValue("negativePrompt", restored.negativePrompt || "");
+  setValue("seedInput", restored.seed || "");
+  setValue("motionBlurCharacter", restored.motionBlurCharacter || "");
+  setValue("motionBlurLocation", restored.motionBlurLocation || "");
+  setValue("motionBlurBackground", restored.motionBlurBackground || "");
+  setValue("motionBlurForeground", restored.motionBlurForeground || "");
+
+  setSlider("refWeightSlider", "weightValue", restored.referenceWeight ?? 50);
+  setSlider("mjStylizeSlider", "mjStylizeVal", restored.mjStylize ?? 250);
+  setSlider("mjChaosSlider", "mjChaosVal", restored.mjChaos ?? 0);
+  setSlider("mjWeirdSlider", "mjWeirdVal", restored.mjWeird ?? 0);
+  setValue("mjSrefInput", restored.mjSref || "");
+  setSlider("sdCfgSlider", "sdCfgVal", restored.sdCfg ?? 7);
+  setSlider("sdStepsSlider", "sdStepsVal", restored.sdSteps ?? 25);
+  setSlider("fluxGuidanceSlider", "fluxGuidanceVal", restored.fluxGuidance ?? 3.5);
+  setSlider("fluxStepsSlider", "fluxStepsVal", restored.fluxSteps ?? 28);
+
+  [
+    "generateFourMode",
+    "grid3x3Mode",
+    "maxConsistency",
+    "beforeAfter",
+    "seamlessPattern",
+    "skinRenderBoost",
+    "hairRenderBoost",
+    "motionBlurMode",
+    "motionBlurBackgroundEnabled",
+    "motionBlurForegroundEnabled"
+  ].forEach((id) => setChecked(id, restored[id]));
+
+  syncPromptFormatVisual(restored.promptFormat || "flat");
+  updateAll();
+  return true;
+}
+
+function undoLastStep() {
+  if (!undoState.stack.length) {
+    notify("Нет шага для возврата", "warn");
+    syncUndoButtonState();
+    return;
+  }
+
+  const entry = undoState.stack.pop();
+  if (!entry || !entry.snapshot) {
+    syncUndoButtonState();
+    return;
+  }
+
+  undoState.applying = true;
+  try {
+    if (applyStateSnapshot(entry.snapshot)) {
+      notify("Шаг назад выполнен");
+    }
+  } finally {
+    undoState.applying = false;
+    syncUndoButtonState();
+  }
+}
+
+window.undoLastStep = undoLastStep;
 
 function normalizeText(value) {
   return (value || "").toString().normalize("NFKC").toLowerCase();
@@ -939,11 +1315,7 @@ function enforceOutputStateRules(st, prevState) {
   const prev = prevState || {};
 
   // Keep model and prompt format consistent for API/server callers too.
-  if (st.aiModel === "midjourney") {
-    st.promptFormat = "midjourney";
-  } else if (st.promptFormat === "midjourney") {
-    st.promptFormat = "flat";
-  }
+  st.promptFormat = normalizePromptFormatForModel(st.aiModel, st.promptFormat);
 
   // Motion blur is available only in flat prompt mode.
   if (st.promptFormat !== "flat") {
@@ -1044,12 +1416,13 @@ function enforceOutputStateRules(st, prevState) {
     clearStateField(st, "angle");
   }
 
-  // P12: NBP Engine Capability Gates
-  if (isNBPModel(st.aiModel)) {
-    const effAR = getEffectiveAspectRatio();
-    if (effAR && !NBP_ALLOWED_ASPECT_RATIOS.has(effAR)) {
-      // Clear aspect ratio if not supported by NBP
-      st.aspectRatio = "1:1";
+  // P12: Engine capability gates (aspect ratio constraints from model config)
+  const allowedAspectRatios = getModelAllowedAspectRatios(st.aiModel);
+  if (allowedAspectRatios.size > 0) {
+    const effAR = st.grid3x3Mode ? "3:4" : (st.aspectRatio || "");
+    if (effAR && !allowedAspectRatios.has(effAR)) {
+      const modelCaps = getModelCapabilities(st.aiModel);
+      st.aspectRatio = modelCaps.default_aspect_ratio || "1:1";
       st.resolution = "";
     }
   }
@@ -1175,11 +1548,19 @@ document.addEventListener("DOMContentLoaded", function () {
     .then(data => { window.taxonomyRules = data.rules || []; })
     .catch(err => console.error("Filter logic err:", err));
 
+  loadEngineCapabilities().then(() => {
+    state.aiModel = normalizeAiModelValue(state.aiModel || getDefaultAiModel()) || getDefaultAiModel();
+    updateModelHint();
+    updateAll();
+  });
+
   initPresets();
+  bindUndoCaptureListeners();
 
   bindEvents();
   setPromptFormat(state.promptFormat);
   updateAll();
+  syncUndoButtonState();
 });
 
 function initPresets() {
@@ -1427,7 +1808,13 @@ function syncGroup(group) {
   const mode = groupConfig[group] && groupConfig[group].mode;
   if (mode === "single") {
     document.querySelectorAll(`[data-group="${group}"]`).forEach(b => {
-      b.classList.toggle("active", b.dataset.value === state[group]);
+      const isActive = group === "aiModel"
+        ? normalizeAiModelValue(b.dataset.value || "") === normalizeAiModelValue(state[group])
+        : b.dataset.value === state[group];
+      b.classList.toggle("active", isActive);
+      if (group === "aiModel" && (b.dataset.value || "") === "nano-banana-pro") {
+        b.classList.toggle("nbp-active", isActive);
+      }
       b.querySelectorAll(".slot-tag").forEach(t => t.remove());
     });
   }
@@ -1473,8 +1860,9 @@ function rebuildResolution() {
 // =============================================
 function updateModelHint() {
   const h = $("modelHint");
-  if (state.aiModel && modelTips[state.aiModel]) {
-    h.textContent = modelTips[state.aiModel];
+  const modelKey = normalizeAiModelValue(state.aiModel);
+  if (modelKey && modelTips[modelKey]) {
+    h.textContent = modelTips[modelKey];
     h.style.display = "block";
   } else {
     h.style.display = "none";
@@ -1482,12 +1870,12 @@ function updateModelHint() {
 }
 
 function updateRefUI() {
-  const isMJ = state.aiModel === "midjourney";
+  const canUploadRefs = modelSupportsReferenceUpload(state.aiModel);
   const sec = $("referencesSection");
   const input = $("referenceImages");
 
-  // Midjourney mode: disable reference upload entirely
-  if (isMJ) {
+  // Disable reference upload for models that do not support it.
+  if (!canUploadRefs) {
     if (sec) sec.classList.add("disabled-section");
     if (input) {
       input.value = "";
@@ -1497,7 +1885,8 @@ function updateRefUI() {
     $("imagePreviewContainer").style.display = "none";
     $("referenceOptions").style.display = "none";
     $("referenceWeight").style.display = "none";
-    $("refUploadHint").innerHTML = "Загрузка референсных изображений отключена для <b>Midjourney</b> в этой версии билдера.";
+    const modelLabel = state.aiModel || "текущей модели";
+    $("refUploadHint").innerHTML = `Загрузка референсных изображений отключена для <b>${esc(modelLabel)}</b> в этой версии билдера.`;
     return;
   }
 
@@ -1519,17 +1908,17 @@ function updateRefUI() {
   $("imagePreviewContainer").style.display = "block";
   $("referenceOptions").style.display = "block";
   // Weight slider: useful for SD and Flux (IP-Adapter). Not useful for chatgpt/nano/dall-e/ideogram/etc.
-  const needsWeight = ["stable-diffusion", "flux"].includes(state.aiModel);
+  const needsWeight = modelSupportsReferenceWeight(state.aiModel);
   $("referenceWeight").style.display = needsWeight ? "block" : "none";
 }
 
 function updateGenParamsUI() {
-  const m = state.aiModel;
-  $("mjGenParams").style.display = m === "midjourney" ? "block" : "none";
-  $("sdGenParams").style.display = m === "stable-diffusion" ? "block" : "none";
-  $("fluxGenParams").style.display = m === "flux" ? "block" : "none";
-  $("dalleGenParams").style.display = m === "dall-e-3" ? "block" : "none";
-  $("noGenParams").style.display = ["midjourney", "stable-diffusion", "flux", "dall-e-3", ""].includes(m) ? "none" : "block";
+  const panel = getModelParamPanel(state.aiModel);
+  $("mjGenParams").style.display = panel === "midjourney" ? "block" : "none";
+  $("sdGenParams").style.display = panel === "stable-diffusion" ? "block" : "none";
+  $("fluxGenParams").style.display = panel === "flux" ? "block" : "none";
+  $("dalleGenParams").style.display = panel === "dall-e-3" ? "block" : "none";
+  $("noGenParams").style.display = (state.aiModel && panel === "none") ? "block" : "none";
 }
 
 // =============================================
@@ -1587,10 +1976,10 @@ function handleImageUpload(event) {
     notify(`Можно загрузить максимум ${MAX_REFERENCE_IMAGES} изображений. Лишние файлы проигнорированы.`, "warn");
   }
 
-  // Disabled for Midjourney in this build
-  if (state.aiModel === "midjourney") {
+  // Disabled for engines that do not support reference uploads.
+  if (!modelSupportsReferenceUpload(state.aiModel)) {
     event.target.value = "";
-    notify("Референсные изображения отключены для Midjourney", "warn");
+    notify(`Референсные изображения отключены для ${state.aiModel || "текущей модели"}`, "warn");
     return;
   }
 
@@ -1656,7 +2045,7 @@ function handleImageUpload(event) {
       $("imagePreviewContainer").style.display = "block";
       // Show reference controls for supported engines
       $("referenceOptions").style.display = "block";
-      $("referenceWeight").style.display = ["stable-diffusion", "flux"].includes(state.aiModel) ? "block" : "none";
+      $("referenceWeight").style.display = modelSupportsReferenceWeight(state.aiModel) ? "block" : "none";
       updateAll();
     };
     reader.onerror = () => {
@@ -1742,12 +2131,12 @@ function addNegative(text) {
 // PROMPT FORMAT
 // =============================================
 function setPromptFormat(fmt) {
-  state.promptFormat = fmt;
+  state.promptFormat = normalizePromptFormatForModel(state.aiModel, fmt);
   document.querySelectorAll(".format-tab").forEach(t => {
-    t.classList.toggle("active", t.dataset.format === fmt);
+    t.classList.toggle("active", t.dataset.format === state.promptFormat);
   });
   const labels = { flat: "Flat (Плоский)", structured: "Structured (Структурный)", midjourney: "Midjourney синтаксис" };
-  $("promptFormatLabel").textContent = labels[fmt] || fmt;
+  $("promptFormatLabel").textContent = labels[state.promptFormat] || state.promptFormat;
   updateAll();
 }
 
@@ -2277,9 +2666,12 @@ function normalizeNBPResolution(rawResolution, qualityHint) {
   return "1K";
 }
 
-function normalizeNBPAspectRatio(rawAspectRatio) {
+function normalizeNBPAspectRatio(rawAspectRatio, model) {
   const ar = String(rawAspectRatio || "").trim();
-  return NBP_ALLOWED_ASPECT_RATIOS.has(ar) ? ar : "1:1";
+  const modelCaps = getModelCapabilities(model || state.aiModel);
+  const allowed = getModelAllowedAspectRatios(model || state.aiModel);
+  if (!allowed.size) return ar || (modelCaps.default_aspect_ratio || "1:1");
+  return allowed.has(ar) ? ar : (modelCaps.default_aspect_ratio || "1:1");
 }
 
 function pruneEmptyFields(value) {
@@ -2331,16 +2723,17 @@ function resolveUserNumImages() {
   return undefined;
 }
 
-function buildNBPRequestPayload() {
+function buildNBPRequestPayload(targetModel) {
+  const payloadModel = normalizeAiModelValue(targetModel || state.aiModel || getDefaultAiModel());
   const outputPrompt = (buildPromptTextForOutput({ includeRenderBoostInPrompt: false }) || "").trim();
   const fallbackPrompt = (state.mainSubject || "").trim() || (state.generateFourMode ? "" : "Generate an image.");
   const promptRaw = outputPrompt && !outputPrompt.includes("Select parameters on the left") ? outputPrompt : fallbackPrompt;
   const prompt = promptRaw.replace(/\r?\n+/g, " ").replace(/\s{2,}/g, " ").trim();
 
   const imageUrls = collectNBPImageUrls();
-  const nbpAspectRatio = state.grid3x3Mode ? undefined : normalizeNBPAspectRatio(getEffectiveAspectRatio());
+  const nbpAspectRatio = state.grid3x3Mode ? undefined : normalizeNBPAspectRatio(getEffectiveAspectRatio(), payloadModel);
   const payload = {
-    model: "nano-banana-pro",
+    model: payloadModel,
     type: imageUrls.length ? "image-to-image" : "text-to-image",
     prompt: prompt,
     resolution: normalizeNBPResolution(state.resolution, state.quality)
@@ -2408,10 +2801,11 @@ function collectAdditional3x3Selections() {
 
 function buildJson() {
   const negativePrompt = (state.negativePrompt || "").trim();
-  const modelSupportsNegativePrompt = !["dall-e-3", "flux"].includes(state.aiModel);
+  const modelSupportsNeg = modelSupportsNegativePrompt(state.aiModel);
+  const resolvedModel = normalizeAiModelValue(state.aiModel || "");
 
   const engineParams = (function () {
-    const m = state.aiModel;
+    const m = resolvedModel;
     if (m === "midjourney") return { version: state.mjVersion, style: state.mjStyle || "default", stylize: state.mjStylize, chaos: state.mjChaos, weird: state.mjWeird, sref: (state.mjSref || "").trim() || undefined };
     if (m === "stable-diffusion") return { cfg_scale: state.sdCfg, steps: state.sdSteps };
     if (m === "flux") return { model: "flux-" + state.fluxModel, guidance: state.fluxGuidance, steps: state.fluxSteps };
@@ -2421,13 +2815,13 @@ function buildJson() {
 
   const referencesPayload = {
     type: state.referenceType || undefined,
-    weight: ["stable-diffusion", "flux"].includes(state.aiModel) ? state.referenceWeight : undefined,
+    weight: modelSupportsReferenceWeight(resolvedModel) ? state.referenceWeight : undefined,
     images: (state.referenceImages || []).map((img, i) => ({
       name: img.name,
       size: img.size,
       description: img.description || "",
       extract: img.extract || [],
-      role: state.aiModel === "midjourney" ? (i === 0 ? "omni-reference" : "style-reference") : undefined
+      role: resolvedModel === "midjourney" ? (i === 0 ? "omni-reference" : "style-reference") : undefined
     }))
   };
 
@@ -2515,28 +2909,25 @@ function buildJson() {
       seed: state.seed || undefined,
       engine_params: engineParams,
       references: referencesPayload,
-      negative: modelSupportsNegativePrompt ? (negativePrompt || undefined) : undefined
+      negative: modelSupportsNeg ? (negativePrompt || undefined) : undefined
     };
 
     return Object.assign({}, base3x3, pruneEmptyFields(selectedOptions) || {});
   }
 
-  // Quick style mode defaults to NBP payload even when model is not selected explicitly.
-  if (state.quickStyle && !state.aiModel) {
-    return buildNBPRequestPayload();
-  }
-
-  if (state.aiModel === "nano-banana-pro") {
-    return buildNBPRequestPayload();
+  // Payload mode is capability-driven; quick style without explicit model uses default model.
+  const payloadModel = resolvedModel || (state.quickStyle ? getDefaultAiModel() : "");
+  if (payloadModel && getModelPayloadMode(payloadModel) === "nbp") {
+    return buildNBPRequestPayload(payloadModel);
   }
 
   const effectiveAspectRatio = getEffectiveAspectRatio();
   const payload = {
     schema: "vpe-prompt-builder-v2",
-    model: state.aiModel || null,
+    model: resolvedModel || null,
     subject: state.mainSubject || "",
     prompt_flat: buildFlatPrompt(),
-    prompt_midjourney: state.aiModel === "midjourney" ? buildMidjourneyPrompt() : undefined,
+    prompt_midjourney: resolvedModel === "midjourney" ? buildMidjourneyPrompt() : undefined,
     technical: {
       aspect_ratio: effectiveAspectRatio || null,
       resolution: state.resolution || null
@@ -2597,13 +2988,13 @@ function buildJson() {
     engine_params: engineParams || null,
     references: {
       type: state.referenceType || null,
-      weight: ["stable-diffusion", "flux"].includes(state.aiModel) ? state.referenceWeight : undefined,
+      weight: modelSupportsReferenceWeight(resolvedModel) ? state.referenceWeight : undefined,
       images: (state.referenceImages || []).map((img, i) => ({
         name: img.name, size: img.size, description: img.description || "", extract: img.extract || [],
-        role: state.aiModel === "midjourney" ? (i === 0 ? "omni-reference" : "style-reference") : undefined
+        role: resolvedModel === "midjourney" ? (i === 0 ? "omni-reference" : "style-reference") : undefined
       }))
     },
-    negative: modelSupportsNegativePrompt ? (negativePrompt || "") : undefined
+    negative: modelSupportsNeg ? (negativePrompt || "") : undefined
   };
 
   return pruneEmptyFields(payload) || {};
@@ -3059,13 +3450,11 @@ function updateAll() {
   updateRefUI();
   updateGenParamsUI();
 
-  // Auto-switch prompt format when Midjourney selected
-  if (state.aiModel === "midjourney" && state.promptFormat !== "midjourney") {
-    setPromptFormat("midjourney");
-  }
-  // Return to flat format when Midjourney is deselected
-  if (state.aiModel !== "midjourney" && state.promptFormat === "midjourney") {
-    setPromptFormat("flat");
+  // Auto-normalize prompt format by active model capabilities.
+  const normalizedPromptFormat = normalizePromptFormatForModel(state.aiModel, state.promptFormat);
+  if (normalizedPromptFormat !== state.promptFormat) {
+    setPromptFormat(normalizedPromptFormat);
+    return;
   }
 
   // === Generate 4 Mode: disable lens section ===
@@ -3632,6 +4021,9 @@ function applyPreset(index) {
     if (mode === "multi") state[k] = Array.isArray(val) ? val : [];
   });
 
+  // Force Nano Banana Pro as default model for all presets.
+  state.aiModel = getDefaultAiModel();
+
   // Backward compatibility: legacy presets stored shot-size in `composition`.
   if (!state.shotSize && state.composition) {
     const c = state.composition.toLowerCase();
@@ -3666,7 +4058,8 @@ function applyPreset(index) {
   updateModelHint();
   rebuildResolution();
   updateAll();
-  notify("Пресет «" + p.name.replace(/[^\w\s-]/g, "").trim() + "» применён");
+  const presetName = (p.name || "").toString().replace(/\s+/g, " ").trim();
+  notify("Пресет «" + (presetName || "без названия") + "» применён");
 }
 
 // =============================================
@@ -3697,8 +4090,10 @@ function checkConflicts() {
       warnings.push("Выбрано несколько авторских стилей одновременно — может быть конфликт. Рекомендуется оставить один.");
     }
   }
-  // Negative prompt with DALL-E/Flux
-  if ((state.negativePrompt || "").trim() && (state.aiModel === "dall-e-3" || state.aiModel === "flux")) warnings.push("DALL·E 3 и Flux не поддерживают негативные промпты — они будут проигнорированы.");
+  // Negative prompt support is capability-driven by active model.
+  if ((state.negativePrompt || "").trim() && !modelSupportsNegativePrompt(state.aiModel)) {
+    warnings.push((state.aiModel || "Текущая модель") + " не поддерживает негативные промпты — они будут проигнорированы.");
+  }
   // Macro lens + wide composition
   if (flags.hasMacroLens && flags.compositionIsExtremeWide) warnings.push("Макро-объектив + широкий/дальний план — нетипичная комбинация.");
   // Ultra-wide + close-up
@@ -3805,6 +4200,30 @@ function copyJson() {
   }
 }
 
+function pad2(v) {
+  return String(v).padStart(2, "0");
+}
+
+function generateFilename(prefix) {
+  const now = new Date();
+  const date = `${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}`;
+  const time = `${pad2(now.getHours())}-${pad2(now.getMinutes())}`;
+  return `${prefix}_${date}_${time}.txt`;
+}
+
+function downloadFile(filename, content) {
+  const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.rel = "noopener";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 window.updatePrompt = updatePrompt; // Expose for verification
 function updatePrompt() {
   const flat = buildFlatPrompt();
@@ -3814,27 +4233,30 @@ function updatePrompt() {
 }
 
 function savePrompt() {
-  const text = $("promptOutput").textContent || "";
-  if (!text.trim() || text.includes("Select parameters") || text.includes("Выберите") || text.includes("Выберите")) { notify("Нечего сохранять", "warn"); return; }
-  const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url; a.download = "vpe-prompt-" + Date.now() + ".txt"; a.click();
-  URL.revokeObjectURL(url);
-  notify("Файл сохранён");
+  try {
+    const jsonData = buildJson();
+    const semanticPrompt = String(
+      (jsonData && (jsonData.prompt || jsonData.prompt_flat)) ||
+      buildFlatPrompt() ||
+      ""
+    ).trim();
+    if (!semanticPrompt || semanticPrompt.includes("Select parameters") || semanticPrompt.includes("Выберите")) {
+      notify("Нечего сохранять", "warn");
+      return;
+    }
+    downloadFile(generateFilename("prompt"), semanticPrompt);
+    notify("Семантический промпт сохранён");
+  } catch (e) {
+    notify("Ошибка сохранения: " + e.message, "err");
+  }
 }
 
 function saveJson() {
   try {
-    const jsonData = buildJson();
-    const text = JSON.stringify(jsonData, null, 2);
-    if (!text || text === "{}" || text === "null") { notify("JSON пуст", "warn"); return; }
-    const blob = new Blob([text], { type: "application/json;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = "vpe-json-" + Date.now() + ".json"; a.click();
-    URL.revokeObjectURL(url);
-    notify("JSON сохранён");
+    const jsonText = JSON.stringify(buildJson(), null, 2);
+    if (!jsonText || jsonText === "{}" || jsonText === "null") { notify("JSON пуст", "warn"); return; }
+    downloadFile(generateFilename("prompt_json"), jsonText);
+    notify("JSON-промпт сохранён");
   } catch (e) {
     notify("Ошибка JSON: " + e.message, "err");
   }
@@ -3850,6 +4272,7 @@ function resetAll() {
   state.dalleStyle = "vivid"; state.dalleQuality = "hd";
   state.skinRenderBoost = false; state.hairRenderBoost = false;
   state.referenceImages = []; state.referenceWeight = 50;
+  state.aiModel = getDefaultAiModel();
   state.promptFormat = "flat";
   state.isStandardPresetActive = false;
 

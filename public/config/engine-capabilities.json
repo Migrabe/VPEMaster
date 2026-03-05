@@ -1,0 +1,108 @@
+{
+  "version": "1.0.0",
+  "default_model": "nano-banana-pro",
+  "aliases": {
+    "nano-banana": "nano-banana-pro"
+  },
+  "default_capabilities": {
+    "allowed_prompt_formats": [
+      "flat",
+      "structured",
+      "midjourney"
+    ],
+    "forced_prompt_format": null,
+    "supports_negative_prompt": true,
+    "supports_reference_upload": true,
+    "supports_reference_weight": false,
+    "uses_nbp_wrappers": false,
+    "payload_mode": "standard",
+    "param_panel": "none",
+    "default_aspect_ratio": "1:1"
+  },
+  "models": {
+    "nano-banana-pro": {
+      "allowed_prompt_formats": [
+        "flat",
+        "structured"
+      ],
+      "allowed_aspect_ratios": [
+        "1:1",
+        "4:3",
+        "3:4",
+        "16:9",
+        "9:16"
+      ],
+      "default_aspect_ratio": "1:1",
+      "uses_nbp_wrappers": true,
+      "payload_mode": "nbp",
+      "supports_reference_weight": false,
+      "param_panel": "none"
+    },
+    "gemini-imagen": {
+      "allowed_prompt_formats": [
+        "flat",
+        "structured"
+      ],
+      "allowed_aspect_ratios": [
+        "1:1",
+        "4:3",
+        "3:4",
+        "16:9",
+        "9:16"
+      ],
+      "default_aspect_ratio": "1:1",
+      "uses_nbp_wrappers": true,
+      "payload_mode": "standard",
+      "supports_reference_weight": false,
+      "param_panel": "none"
+    },
+    "midjourney": {
+      "allowed_prompt_formats": [
+        "midjourney"
+      ],
+      "forced_prompt_format": "midjourney",
+      "supports_reference_upload": false,
+      "supports_reference_weight": false,
+      "param_panel": "midjourney"
+    },
+    "stable-diffusion": {
+      "allowed_prompt_formats": [
+        "flat",
+        "structured"
+      ],
+      "supports_reference_weight": true,
+      "param_panel": "stable-diffusion"
+    },
+    "flux": {
+      "allowed_prompt_formats": [
+        "flat",
+        "structured"
+      ],
+      "supports_negative_prompt": false,
+      "supports_reference_weight": true,
+      "param_panel": "flux"
+    },
+    "dall-e-3": {
+      "allowed_prompt_formats": [
+        "flat",
+        "structured"
+      ],
+      "supports_negative_prompt": false,
+      "param_panel": "dall-e-3"
+    },
+    "ideogram": {
+      "allowed_prompt_formats": [
+        "flat",
+        "structured"
+      ],
+      "param_panel": "none"
+    },
+    "chatgpt-image": {
+      "allowed_prompt_formats": [
+        "flat",
+        "structured"
+      ],
+      "param_panel": "none"
+    }
+  }
+}

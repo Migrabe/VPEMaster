@@ -24,6 +24,17 @@ try {
   TAXONOMY_RULES = [];
 }
 
+const engineCapabilitiesPath = path.join(__dirname, "..", "public", "config", "engine-capabilities.json");
+let ENGINE_CAPABILITIES = {};
+try {
+  const raw = fs.readFileSync(engineCapabilitiesPath, "utf8");
+  const parsed = JSON.parse(raw);
+  ENGINE_CAPABILITIES = parsed && typeof parsed === "object" ? parsed : {};
+} catch (_e) {
+  // Client script contains a fallback map; server can continue if config is missing.
+  ENGINE_CAPABILITIES = {};
+}
+
 /**
  * Create a permissive dummy DOM element that absorbs any property/method usage.
  */
@@ -99,6 +110,7 @@ function createSandbox() {
       getItem() { return null; },
       setItem() { }
     },
+    engineCapabilities: deepClone(ENGINE_CAPABILITIES),
     // Some scripts may refer to these:
     navigator: { userAgent: "node" },
     Intl,
@@ -163,7 +175,12 @@ export function computeFromState(stateInput) {
   let promptText = "";
   const fmt = context.state.promptFormat || "flat";
   const model = context.state.aiModel || "";
-  const isNBP = ["nano-banana-pro", "nano-banana", "gemini-imagen"].includes(model);
+  const normalizedModel = typeof context.normalizeAiModelValue === "function"
+    ? (context.normalizeAiModelValue(model) || model)
+    : model;
+  const isNBP = typeof context.isNBPModel === "function"
+    ? !!context.isNBPModel(normalizedModel)
+    : ["nano-banana-pro", "nano-banana", "gemini-imagen"].includes(normalizedModel);
 
   if (fmt === "midjourney") promptText = context.buildMidjourneyPrompt?.() ?? "";
   else if (fmt === "structured") promptText = context.buildStructuredPrompt?.() ?? "";
@@ -191,7 +208,7 @@ export function computeFromState(stateInput) {
       ? context.MAX_CONSISTENCY_PREFIX_FLAT
       : context.MAX_CONSISTENCY_PREFIX;
     promptText = consistencyPrefix + "\n" + promptText;
-    if (model === "midjourney") {
+    if (normalizedModel === "midjourney") {
       promptText = (promptText ?? "").trimEnd() + " --cw 100";
     }
   }
