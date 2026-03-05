@@ -358,6 +358,7 @@ class StateManager {
     this.initialState = deepClone(initial);
     this.state = deepClone(initial);
     this.listeners = [];
+    this.isGitHubPages = window.location.hostname.includes("github.io");
   }
 
   subscribe(listener) {
@@ -583,6 +584,11 @@ class StateManager {
 
     this._applyTaxonomyRules(prevState);
     enforceOutputStateRules(this.state, prevState);
+
+    if (this.isGitHubPages && !this.state.ghPagesWarningShown) {
+      console.warn("Running on GitHub Pages: Backend features (API/Server) are disabled.");
+      this.state.ghPagesWarningShown = true;
+    }
   }
 }
 

@@ -143,12 +143,16 @@
       flex-shrink: 0;
     }
 
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 0;
-    }
+      <div class="header-left">
+        <div class="logo">VPE</div>
+        <div>
+          <h1>VPE Prompt Builder 2026 <sup>v4.0</sup></h1>
+          <div id="hosting-info" style="font-size: 0.7em; color: var(--muted); margin-top: 4px;">
+            <span id="hosting-status">Checking host...</span>
+            <a id="render-link" href="#" target="_blank" style="color: var(--accent-k); display: none; margin-left:10px;">Go to Full Version (Render) →</a>
+          </div>
+        </div>
+      </div>
 
     .header-right {
       display: flex;
