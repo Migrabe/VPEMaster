@@ -1,0 +1,160 @@
+{
+  "schema": "vpe-prompt-builder-v3-universal",
+  "title": "3D Fighting Game Character Select Screen",
+  "description": "Generate a dark, gritty, high-intensity 3D character selection screen inspired by brutal, arena-style modern fighting games.",
+  "model": "Nano Banana Pro (Gemini 3 Pro Image)",
+  "subject": "A young woman in her 20s with auburn hair, wearing a high-end cyberpunk leather jacket, grouped in an arena with 9 other fighters.",
+  "prompt_flat": "Generate a cinematic, photorealistic portrait and character select screen with hyper-detailed skin textures, AAA 3D graphics, and dynamic lighting.",
+  "technical": {
+    "aspect_ratio": "16:9",
+    "resolution": "8K",
+    "render_type": "hyper-realistic AAA 3D graphics with a gritty cinematic finish"
+  },
+  "characters": {
+    "source": "uploaded images",
+    "count": 10,
+    "rules": [
+      "Make up a name for each character",
+      "Do not describe their physical appearance",
+      "Do not modify their identity",
+      "Transform each into a realistic 3D fighter model",
+      "Each fighter must have a unique, powerful, combat-ready action pose"
+    ]
+  },
+  "parameters": {
+    "purpose": "Cinematic Concept Art / Game UI",
+    "format": "Photorealistic rendering",
+    "medium": "Digital Photography / 3D Render",
+    "mood": "Dark, moody, atmospheric, mysterious",
+    "emotion": "Confident, serene with a slight smirk",
+    "camera": {
+      "body": "ARRI Alexa 65",
+      "lens": "85mm portrait lens",
+      "shot_size": "Medium close-up to Wide establishing shot",
+      "focal_length": "85mm",
+      "aperture": "f/1.8",
+      "angle": "Low-angle heroic shot, eye-level slightly tilted (Dutch angle)",
+      "perspective": "Wide cinematic lens emphasizing power and scale",
+      "composition": "Rule of thirds, characters forming a curved arc",
+      "effects": [
+        "subtle vignette",
+        "depth of field tuned for dramatic silhouettes",
+        "filmic contrast"
+      ]
+    },
+    "lighting": {
+      "type": {
+        "primary": "Harsh directional spotlight from above right",
+        "accent": "Fiery warm-orange side lights and cold shadowy blue backlights"
+      },
+      "scene_lighting_rules": [
+        "harsh directional spotlights from above",
+        "fiery warm-orange side lights",
+        "cold shadowy blue backlights",
+        "thick atmospheric fog with volumetric beams",
+        "embers, dust, and floating particles"
+      ],
+      "time": {
+        "primary": "Midnight",
+        "accent": "Rainy atmosphere"
+      },
+      "effects": [
+        "Volumetric fog",
+        "Lens flare",
+        "Raindrops illuminated by neon"
+      ],
+      "palette": "Teal and orange cinematic grading with magenta highlights"
+    },
+    "color_palette": [
+      "molten orange",
+      "blood-red accents (non-graphic)",
+      "cold steel blue",
+      "charcoal black",
+      "embers and fiery yellows"
+    ],
+    "environment": {
+      "arena": "dark stone-and-metal arena platform with cracks, glowing fissures, and heavy atmosphere",
+      "floor": "rugged metallic floor with worn textures and faint reflections",
+      "background": "massive ceremonial statues, arcane symbols, chains, smoke plumes",
+      "platforms": "each character stands on their own circular engraved platform with glowing runes or energy lines"
+    },
+    "layout": {
+      "arrangement": "10 characters displayed in a curved arc formation, each on their own platform",
+      "spacing": "wide spacing for clear silhouettes and dramatic pose readability",
+      "hierarchy": "central fighters slightly more forward, balanced left and right"
+    },
+    "ui_elements": {
+      "title_text": "CHARACTER SELECT",
+      "character_name_plates": "Rugged metallic plaques or glowing stone-like labels under each character, empty for later name entry.",
+      "interface_style": "ancient-meets-modern combat UI with glowing edges, heavy metal textures, runic motifs and high-contrast menu frames"
+    },
+    "materials": {
+      "skin": [
+        "Visible pores",
+        "Vellus hair",
+        "Natural sebum sheen",
+        "Subsurface scattering (SSS)"
+      ],
+      "hair": [
+        "Individual wet strands",
+        "Organic keratin shine",
+        "Flyaways"
+      ],
+      "objects": [
+        "Wet leather texture",
+        "Glossy reflections on wet pavement"
+      ]
+    },
+    "text": {
+      "content": "CHARACTER SELECT",
+      "font_style": "Modern aggressive, glowing stone-like text"
+    },
+    "tone_and_vibe": {
+      "keywords": [
+        "dark fantasy combat",
+        "ancient mystical energy",
+        "brutal atmosphere (non-graphic)",
+        "competitive intensity",
+        "epic warrior presence",
+        "arena showdown energy"
+      ]
+    },
+    "quality": "Ultra-realistic, 8K fidelity",
+    "photo_style": null,
+    "cinema_style": "Roger Deakins style cinematography",
+    "director_style": "Denis Villeneuve",
+    "art_style": "AAA Game Studio Key Art",
+    "film_stock": "Fujifilm Vision 3 emulation, subtle film grain",
+    "quick_style": "Cinematic 3D Render",
+    "fashion_food_style": null,
+    "cinematic_preset": "Sci-Fi Noir / Fighting Arena",
+    "audio": {
+      "ambience": "Heavy bass drone, distant thunder",
+      "foley": "Metal clashing, glowing rune hum",
+      "cinematic_fx": "Impact woosh, low-frequency rumble"
+    }
+  },
+  "modes": {
+    "generateFour": false,
+    "grid3x3": false,
+    "maxConsistency": true,
+    "before_after": false,
+    "seamless_pattern": false
+  },
+  "renderBoost": {
+    "skin": true,
+    "hair": true
+  },
+  "seed": null,
+  "engine_params": {
+    "thinking_level": "High"
+  },
+  "references": {
+    "type": "Identity Locking",
+    "weight": 100,
+    "images": [
+      "Image 1 (Uploaded Reference for face matching)"
+    ]
+  },
+  "negative": "plastic skin, airbrushed, CGI, 3D render, smooth makeup, bad anatomy, warped hands, extra limbs, watermark, basic UI, flat lighting, plain background"
+}

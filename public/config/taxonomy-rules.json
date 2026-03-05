@@ -1,0 +1,250 @@
+{
+    "rules": [
+        {
+            "trigger": {
+                "field": "medium",
+                "in": [
+                    "digital art, Wacom tablet rendering, smooth blending, crisp edges",
+                    "oil on canvas, thick impasto texture, layered glazing, visible weave",
+                    "watercolor on Arches cold-pressed paper, wet-on-wet bleeds, pigment granulation",
+                    "ink drawing on vellum, Micron pen linework, high-contrast stippling",
+                    "compressed charcoal on toned paper, smudged soft gradients, gritty texture",
+                    "acrylic painting, quick-dry matte finish, bold opaque coverage, palette knife marks",
+                    "mixed media collage, layered paper textures, paint splatter, found objects",
+                    "marble sculpture, carved chisel marks, smooth polished surface, directional studio light",
+                    "collage artwork, torn magazine cutouts, visible glue edges, overlapping layers",
+                    "gouache on illustration board, opaque matte finish, flat even coats",
+                    "soft pastel on Mi-Teintes paper, powdery blended strokes, visible tooth texture",
+                    "graphite pencil 2B–6B range, fine cross-hatching, subtle tonal gradation",
+                    "Prismacolor colored pencil, burnished layered strokes, waxy smooth blending",
+                    "wax crayon on construction paper, childlike strokes, heavy texture lines",
+                    "Montana spray paint on concrete, aerosol overspray halo, drip textures",
+                    "buon fresco on wet lime plaster, muted mineral pigments, craquelure aging",
+                    "Byzantine mosaic, gold smalti tesserae, visible grout lines, fixed frontal pose",
+                    "woodcut relief print, carved parallel lines, visible wood grain, bold black ink",
+                    "linocut print, crisp carved edges, flat ink coverage, two-color registration",
+                    "copper plate etching, fine aquatint tones, cross-hatched shadows, acid-bitten lines",
+                    "Warhol-style screen print, layered flat CMYK inks, slight registration offset",
+                    "encaustic painting, melted beeswax pigment, translucent layered depth, textured surface",
+                    "egg tempera on wood panel, fine hatched brushwork, luminous matte glow",
+                    "batik wax-resist dyed fabric, crackle vein pattern, indigo and earth tones",
+                    "embroidered textile art, visible thread stitching, satin and chain stitch detail",
+                    "blown glass art, translucent organic forms, internal bubble inclusions, Murano-style",
+                    "lost-wax bronze cast, green verdigris patina, polished highlight ridges",
+                    "vector illustration, clean bezier curves, infinite scalability, flat color blocks, print-ready crisp edges"
+                ]
+            },
+            "action": "disable",
+            "targets": [
+                "cameraBody",
+                "lens",
+                "aperture",
+                "filmStock",
+                "skinDetail",
+                "hairDetail",
+                "skinRenderBoost",
+                "hairRenderBoost"
+            ],
+            "reason": "Выбран медиум, несовместимый с оптикой/камерой"
+        },
+        {
+            "trigger": {
+                "field": "artStyle",
+                "in": [
+                    "Иллюстрация",
+                    "Масло (Картина)",
+                    "Аниме",
+                    "Концепт-арт",
+                    "Флэт / Вектор",
+                    "Карандашный скетч",
+                    "Пиксель-арт",
+                    "Комикс",
+                    "Винтаж / Ретро",
+                    "Минимализм",
+                    "Импрессионизм",
+                    "Экспрессионизм",
+                    "Сюрреализм",
+                    "Модерн (Ар-нуво)",
+                    "Ар-деко",
+                    "Барокко",
+                    "Ренессанс",
+                    "Поп-арт",
+                    "Киберпанк",
+                    "Стимпанк",
+                    "Фэнтези",
+                    "Готика",
+                    "Вейпорвейв",
+                    "Изометрия",
+                    "Лоу-поли",
+                    "Укиё-э",
+                    "Баухаус",
+                    "Абстракция",
+                    "Пуантилизм",
+                    "Кубизм",
+                    "Граффити",
+                    "Манга",
+                    "Чиби",
+                    "Двойная экспозиция",
+                    "Глитч-арт",
+                    "Витраж",
+                    "Бумажный арт",
+                    "Пластилин (Claymation)",
+                    "Чертеж (Blueprint)"
+                ]
+            },
+            "action": "disable",
+            "targets": [
+                "cameraBody",
+                "lens",
+                "aperture",
+                "filmStock",
+                "skinDetail",
+                "hairDetail",
+                "skinRenderBoost",
+                "hairRenderBoost"
+            ],
+            "reason": "Выбран художественный стиль, несовместимый с оптикой/камерой"
+        },
+        {
+            "trigger": {
+                "field": "purpose",
+                "in": [
+                    "Logo Design",
+                    "UI Design",
+                    "Infographic",
+                    "Icon Design",
+                    "Web Design",
+                    "Abstract Art",
+                    "Typography",
+                    "Pattern Design",
+                    "3D Icon",
+                    "Mascot Design"
+                ]
+            },
+            "action": "disable",
+            "targets": [
+                "cameraBody",
+                "lens",
+                "aperture",
+                "filmStock",
+                "skinDetail",
+                "hairDetail",
+                "photoStyle",
+                "cinemaStyle",
+                "directorStyle",
+                "skinRenderBoost",
+                "hairRenderBoost"
+            ],
+            "reason": "Абстрактное назначение не использует портретные настройки и камеры"
+        },
+        {
+            "trigger": {
+                "field": "lens",
+                "contains": [
+                    "macro",
+                    "100mm",
+                    "105mm"
+                ]
+            },
+            "action": "exclude",
+            "target": "shotSize",
+            "values": [
+                "wide shot",
+                "extreme long shot",
+                "extreme wide"
+            ],
+            "reason": "Макро несовместимо с широким планом"
+        },
+        {
+            "trigger": {
+                "field": "lens",
+                "contains": [
+                    "14mm",
+                    "14-24mm",
+                    "15-35mm"
+                ]
+            },
+            "action": "exclude",
+            "target": "shotSize",
+            "values": [
+                "extreme close-up"
+            ],
+            "reason": "Ультра-широкий объектив несовместим с крайне крупным планом"
+        },
+        {
+            "trigger": {
+                "field": "shotSize",
+                "contains": [
+                    "flat lay"
+                ]
+            },
+            "action": "exclude",
+            "target": "angle",
+            "values": [
+                "extreme low angle",
+                "low angle shot",
+                "slightly low angle",
+                "eye level",
+                "dutch angle",
+                "over-the-shoulder",
+                "POV first person"
+            ],
+            "reason": "Flat Lay — только вид сверху"
+        },
+        {
+            "trigger": {
+                "field": "angle",
+                "contains": [
+                    "drone"
+                ]
+            },
+            "action": "exclude",
+            "target": "lighting",
+            "values": [
+                "studio three-point",
+                "studio continuous",
+                "softbox",
+                "ring light",
+                "rembrandt lighting",
+                "butterfly lighting",
+                "split lighting"
+            ],
+            "reason": "Студийный свет несовместим с дрон-съёмкой"
+        },
+        {
+            "trigger": {
+                "field": "quickStyle",
+                "notEmpty": true
+            },
+            "action": "disable",
+            "targets": [
+                "photoStyle",
+                "cinemaStyle",
+                "directorStyle",
+                "artStyle",
+                "fashionFoodStyle",
+                "filmStock",
+                "cameraBody",
+                "lighting"
+            ],
+            "reason": "Пресет полностью переопределяет стилистику кадра"
+        },
+        {
+            "trigger": {
+                "field": "fashionFoodStyle",
+                "notEmpty": true
+            },
+            "action": "disable",
+            "targets": [
+                "photoStyle",
+                "cinemaStyle",
+                "directorStyle",
+                "artStyle",
+                "quickStyle",
+                "filmStock",
+                "referenceType"
+            ],
+            "reason": "Стиль Fashion/Food переопределяет другие стили"
+        }
+    ]
+}

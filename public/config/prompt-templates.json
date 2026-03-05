@@ -1,0 +1,158 @@
+[
+    {
+        "id": "photography",
+        "name": "Photography",
+        "description": "Realistic photography style with professional lighting",
+        "prompt": "{subject} in {style}, professional photography, 8k resolution, {lighting}, {camera}, {lens}, {film_type}",
+        "negative_prompt": "blurry, low quality, watermark, text, logo",
+        "settings": {
+            "cfg_scale": 7,
+            "sampler": "Euler a",
+            "steps": 28,
+            "quality": "High"
+        }
+    },
+    {
+        "id": "cinematic",
+        "name": "Cinematic",
+        "description": "Cinematic movie still with dramatic lighting and composition",
+        "prompt": "{subject} cinematic still, {mood} atmosphere, {lighting}, {time_of_day}, {weather}, {camera_angle}, {lens}, {film_grain}",
+        "negative_prompt": "cartoon, anime, drawing, sketch, low quality",
+        "settings": {
+            "cfg_scale": 8,
+            "sampler": "DPM++ 2M Karras",
+            "steps": 30,
+            "quality": "Ultra"
+        }
+    },
+    {
+        "id": "anime",
+        "name": "Anime",
+        "description": "High-quality anime style with vibrant colors",
+        "prompt": "{subject} anime style, {art_style}, {color_palette}, {background}, {mood}, {lighting}, detailed background, high quality",
+        "negative_prompt": "realistic, photograph, 3d, cgi, low quality, blurry",
+        "settings": {
+            "cfg_scale": 7,
+            "sampler": "Euler",
+            "steps": 25,
+            "quality": "High"
+        }
+    },
+    {
+        "id": "digital_art",
+        "name": "Digital Art",
+        "description": "Digital painting with artistic brush strokes",
+        "prompt": "{subject} digital painting, {art_style}, {brush_style}, {color_palette}, {mood}, {lighting}, {background}, highly detailed",
+        "negative_prompt": "photograph, realistic, 3d, cgi, low quality",
+        "settings": {
+            "cfg_scale": 7.5,
+            "sampler": "DPM++ 2M",
+            "steps": 28,
+            "quality": "High"
+        }
+    },
+    {
+        "id": "concept_art",
+        "name": "Concept Art",
+        "description": "Professional concept art for games and movies",
+        "prompt": "{subject} concept art, {art_style}, {mood}, {lighting}, {environment}, {time_period}, {medium}, highly detailed, professional",
+        "negative_prompt": "photograph, realistic, low quality, blurry, watermark",
+        "settings": {
+            "cfg_scale": 8,
+            "sampler": "DPM++ 2M Karras",
+            "steps": 30,
+            "quality": "Ultra"
+        }
+    },
+    {
+        "id": "portrait",
+        "name": "Portrait",
+        "description": "Professional portrait photography",
+        "prompt": "{subject} portrait, {expression}, {pose}, {lighting}, {background}, {camera}, {lens}, {film_type}, professional photography",
+        "negative_prompt": "full body, landscape, group, low quality, blurry, watermark",
+        "settings": {
+            "cfg_scale": 7,
+            "sampler": "Euler a",
+            "steps": 25,
+            "quality": "High"
+        }
+    },
+    {
+        "id": "landscape",
+        "name": "Landscape",
+        "description": "Breathtaking landscape photography",
+        "prompt": "{subject} landscape, {time_of_day}, {weather}, {season}, {lighting}, {perspective}, {camera}, {lens}, {film_type}, ultra detailed",
+        "negative_prompt": "portrait, close up, low quality, blurry, watermark",
+        "settings": {
+            "cfg_scale": 7,
+            "sampler": "Euler a",
+            "steps": 28,
+            "quality": "High"
+        }
+    },
+    {
+        "id": "sci_fi",
+        "name": "Sci-Fi",
+        "description": "Futuristic science fiction concept",
+        "prompt": "{subject} sci-fi, futuristic, {technology_level}, {setting}, {lighting}, {mood}, {color_palette}, highly detailed, concept art",
+        "negative_prompt": "historical, medieval, realistic, low quality, blurry",
+        "settings": {
+            "cfg_scale": 8,
+            "sampler": "DPM++ 2M Karras",
+            "steps": 30,
+            "quality": "Ultra"
+        }
+    },
+    {
+        "id": "fantasy",
+        "name": "Fantasy",
+        "description": "Magical fantasy world and creatures",
+        "prompt": "{subject} fantasy, {magic_level}, {setting}, {mood}, {lighting}, {time_of_day}, {weather}, highly detailed, concept art",
+        "negative_prompt": "realistic, sci-fi, modern, low quality, blurry",
+        "settings": {
+            "cfg_scale": 7.5,
+            "sampler": "DPM++ 2M",
+            "steps": 28,
+            "quality": "High"
+        }
+    },
+    {
+        "id": "minimalist",
+        "name": "Minimalist",
+        "description": "Clean minimalist design with simple composition",
+        "prompt": "{subject} minimalist, {color_scheme}, {composition}, {background}, simple, clean, {style}, {mood}",
+        "negative_prompt": "detailed, complex, busy, cluttered, low quality",
+        "settings": {
+            "cfg_scale": 6.5,
+            "sampler": "Euler",
+            "steps": 20,
+            "quality": "Medium"
+        }
+    },
+    {
+        "id": "vintage",
+        "name": "Vintage",
+        "description": "Retro vintage style with aged effects",
+        "prompt": "{subject} vintage, {time_period}, {style}, {color_palette}, {film_type}, {effects}, {mood}, {lighting}",
+        "negative_prompt": "modern, futuristic, digital, low quality, blurry",
+        "settings": {
+            "cfg_scale": 7,
+            "sampler": "Euler a",
+            "steps": 25,
+            "quality": "High"
+        }
+    },
+    {
+        "id": "cyberpunk",
+        "name": "Cyberpunk",
+        "description": "Neon cyberpunk futuristic cityscape",
+        "prompt": "{subject} cyberpunk, futuristic city, {neon_colors}, {time_of_day}, {weather}, {mood}, {technology_level}, highly detailed",
+        "negative_prompt": "historical, medieval, realistic, low quality, blurry",
+        "settings": {
+            "cfg_scale": 8,
+            "sampler": "DPM++ 2M Karras",
+            "steps": 30,
+            "quality": "Ultra"
+        }
+    }
+]
