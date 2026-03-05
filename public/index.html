@@ -1668,6 +1668,235 @@
       }
     }
   </style>
+  <style type="text/css">
+    /* === 3-ZONE LAYOUT OVERRIDE === */
+    :root {
+      --app-header-offset: 132px;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 0;
+      height: auto;
+      min-height: 100vh;
+    }
+
+    .app {
+      width: 100%;
+      min-height: 100vh;
+      padding: 0 16px 16px;
+      gap: 0;
+    }
+
+    .app-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      z-index: 1100;
+      border-radius: 0;
+      border-left: 0;
+      border-right: 0;
+      margin: 0;
+      padding: 12px 20px;
+    }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr) 420px;
+      gap: 16px;
+      padding-top: var(--app-header-offset);
+      align-items: start;
+      min-height: 100vh;
+    }
+
+    .constructor-panel,
+    .main-menu-panel,
+    .prompt-output-panel {
+      min-width: 0;
+    }
+
+    .constructor-card {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(13, 17, 26, 0.9), rgba(13, 17, 26, 0.62));
+      padding: 14px;
+      position: sticky;
+      top: calc(var(--app-header-offset) + 4px);
+      max-height: calc(100vh - var(--app-header-offset) - 12px);
+      overflow: auto;
+    }
+
+    .constructor-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .constructor-title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    .constructor-toggle {
+      display: none;
+      border: 1px solid var(--border2);
+      background: var(--surface);
+      color: var(--text-primary);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: .78rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .constructor-controls {
+      display: block;
+    }
+
+    .constructor-items {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .constructor-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      color: var(--text-secondary);
+      font-size: .88em;
+      line-height: 1.35;
+      cursor: pointer;
+      transition: border-color .2s, background .2s, color .2s;
+      user-select: none;
+    }
+
+    .constructor-item:hover {
+      border-color: var(--border2);
+      background: rgba(19, 25, 41, 0.55);
+      color: var(--text-primary);
+    }
+
+    .constructor-item input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      accent-color: var(--accent-k);
+      flex: 0 0 auto;
+    }
+
+    .constructor-item.master {
+      margin-bottom: 8px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      border-radius: 0;
+      color: var(--text-primary);
+      font-weight: 700;
+    }
+
+    .menu-section-hidden {
+      display: none !important;
+    }
+
+    .main-menu-panel .left-panel,
+    .prompt-output-panel .right-panel {
+      margin: 0;
+      height: calc(100vh - var(--app-header-offset) - 12px);
+      max-height: calc(100vh - var(--app-header-offset) - 12px);
+      overflow-y: auto;
+    }
+
+    .prompt-output-panel .right-panel {
+      position: sticky;
+      top: calc(var(--app-header-offset) + 4px);
+    }
+
+    @media (max-width: 1320px) {
+      .main-layout {
+        grid-template-columns: 240px minmax(0, 1fr) 360px;
+      }
+    }
+
+    @media (max-width: 1200px) {
+      .main-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .constructor-panel {
+        order: 1;
+      }
+
+      .main-menu-panel {
+        order: 2;
+      }
+
+      .prompt-output-panel {
+        order: 3;
+      }
+
+      .constructor-card,
+      .main-menu-panel .left-panel,
+      .prompt-output-panel .right-panel {
+        position: static;
+        height: auto;
+        max-height: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .app {
+        padding: 0 10px 12px;
+      }
+
+      .app-header {
+        padding: 10px 12px;
+      }
+
+      .main-layout {
+        gap: 12px;
+      }
+
+      .main-menu-panel {
+        order: 1;
+      }
+
+      .prompt-output-panel {
+        order: 2;
+      }
+
+      .constructor-panel {
+        order: 3;
+      }
+
+      .constructor-toggle {
+        display: inline-flex;
+      }
+
+      .constructor-panel .constructor-controls {
+        display: none;
+      }
+
+      .constructor-panel.is-expanded .constructor-controls {
+        display: block;
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -1676,7 +1905,7 @@
 
   <div class="wrap">
     <div class="app">
-      <header class="header">
+      <header class="header app-header">
         <div class="header-left">
           <div class="logo">VPE</div>
           <div>
@@ -1701,9 +1930,27 @@
         </div>
       </header>
 
-      <div class="main-grid">
-        <!-- Main Content Area -->
-        <div class="left-panel">
+      <div class="main-layout" id="mainLayout">
+        <aside class="constructor-panel" id="constructorPanel">
+          <div class="constructor-card">
+            <div class="constructor-title-row">
+              <h2 class="constructor-title">Конструктор</h2>
+              <button type="button" class="constructor-toggle" id="constructorToggleBtn"
+                aria-controls="constructorControls" aria-expanded="false">Показать</button>
+            </div>
+            <div class="constructor-controls" id="constructorControls">
+              <label class="constructor-item master">
+                <input type="checkbox" id="constructorToggleAll" checked>
+                <span>Отметить все</span>
+              </label>
+              <div class="constructor-items" id="constructorItems"></div>
+            </div>
+          </div>
+        </aside>
+
+        <div class="main-menu-panel">
+          <!-- Main Content Area -->
+          <div class="left-panel" id="mainMenuPanel">
 
           <!-- Quick Style Presets (moved to top for priority access) -->
           <div class="section" id="quickStyleSection">
@@ -3373,7 +3620,7 @@
 
 
           <!-- Special Modes -->
-          <div class="section collapsed">
+          <div class="section collapsed" id="specialModesSection">
             <div class="section-header" data-bound="true">
               <h2><span class="icon icon-green">✨</span> Специальные режимы <span class="help-tip">?<span
                     class="tip-text"><b>Before/After</b> — генерирует изображение-сравнение «до и после» в формате
@@ -3601,7 +3848,7 @@
 
 
           <!-- Negative -->
-          <div class="section collapsed">
+          <div class="section collapsed" id="negativeSection">
             <div class="section-header" data-bound="true">
               <h2><span class="icon icon-red">🚫</span> Негативный промпт <span class="help-tip">?<span
                     class="tip-text">Что
@@ -3634,10 +3881,12 @@
             задаёт камеру/оптику — ваш выбор может конфликтовать.<br>• 🔒 Макс. консистентность работает лучше всего с
             загруженными референсными изображениями.</div>
 
+          </div>
         </div>
 
         <!-- RIGHT PANEL -->
-        <div class="right-panel">
+        <aside class="prompt-output-panel">
+          <div class="right-panel" id="promptOutputPanel">
 
           <div class="stats-row">
             <div class="stat-card">
@@ -3783,18 +4032,16 @@
 
 
 
-        </div>
-
-
-
-
-        <script src="js/client_logic_full.js"></script>
-        <script src="js/action-buttons.js"></script>
-
-        <div class="notification success" id="notification">Всё сброшено</div>
-
-
+          </div>
+        </aside>
       </div>
+
+      <script src="js/client_logic_full.js"></script>
+      <script src="js/action-buttons.js"></script>
+      <script src="js/section-visibility.js"></script>
+
+      <div class="notification success" id="notification">Всё сброшено</div>
+
     </div>
 
 
