@@ -1,0 +1,152 @@
+[
+    {
+        "id": "realistic",
+        "name": "Realistic",
+        "description": "Ultra-realistic photography style",
+        "prompt_suffix": ", ultra realistic, 8k resolution, professional photography, detailed textures, natural lighting",
+        "negative_prompt": "cartoon, anime, drawing, sketch, low quality, blurry",
+        "cfg_scale": 7.5,
+        "sampler": "Euler a",
+        "steps": 28
+    },
+    {
+        "id": "anime",
+        "name": "Anime",
+        "description": "High-quality anime style",
+        "prompt_suffix": ", anime style, vibrant colors, cel shading, detailed background, high quality",
+        "negative_prompt": "realistic, photograph, 3d, cgi, low quality, blurry",
+        "cfg_scale": 7,
+        "sampler": "Euler",
+        "steps": 25
+    },
+    {
+        "id": "digital_art",
+        "name": "Digital Art",
+        "description": "Digital painting style",
+        "prompt_suffix": ", digital painting, artistic, brush strokes, vibrant colors, highly detailed",
+        "negative_prompt": "photograph, realistic, 3d, cgi, low quality",
+        "cfg_scale": 7.5,
+        "sampler": "DPM++ 2M",
+        "steps": 28
+    },
+    {
+        "id": "concept_art",
+        "name": "Concept Art",
+        "description": "Professional concept art",
+        "prompt_suffix": ", concept art, highly detailed, professional, dramatic lighting, epic composition",
+        "negative_prompt": "photograph, realistic, low quality, blurry, watermark",
+        "cfg_scale": 8,
+        "sampler": "DPM++ 2M Karras",
+        "steps": 30
+    },
+    {
+        "id": "cinematic",
+        "name": "Cinematic",
+        "description": "Cinematic movie still",
+        "prompt_suffix": ", cinematic lighting, dramatic atmosphere, movie still, film grain, depth of field",
+        "negative_prompt": "cartoon, anime, drawing, sketch, low quality",
+        "cfg_scale": 8,
+        "sampler": "DPM++ 2M Karras",
+        "steps": 30
+    },
+    {
+        "id": "portrait",
+        "name": "Portrait",
+        "description": "Professional portrait style",
+        "prompt_suffix": ", portrait photography, professional lighting, shallow depth of field, sharp focus",
+        "negative_prompt": "landscape, full body, group, low quality, blurry",
+        "cfg_scale": 7,
+        "sampler": "Euler a",
+        "steps": 25
+    },
+    {
+        "id": "landscape",
+        "name": "Landscape",
+        "description": "Breathtaking landscape",
+        "prompt_suffix": ", landscape photography, wide angle, epic scenery, natural lighting, ultra detailed",
+        "negative_prompt": "portrait, close up, low quality, blurry",
+        "cfg_scale": 7,
+        "sampler": "Euler a",
+        "steps": 28
+    },
+    {
+        "id": "sci_fi",
+        "name": "Sci-Fi",
+        "description": "Futuristic science fiction",
+        "prompt_suffix": ", sci-fi, futuristic technology, neon lighting, cyberpunk elements, highly detailed",
+        "negative_prompt": "historical, medieval, realistic, low quality, blurry",
+        "cfg_scale": 8,
+        "sampler": "DPM++ 2M Karras",
+        "steps": 30
+    },
+    {
+        "id": "fantasy",
+        "name": "Fantasy",
+        "description": "Magical fantasy world",
+        "prompt_suffix": ", fantasy art, magical atmosphere, epic composition, highly detailed, concept art",
+        "negative_prompt": "realistic, sci-fi, modern, low quality, blurry",
+        "cfg_scale": 7.5,
+        "sampler": "DPM++ 2M",
+        "steps": 28
+    },
+    {
+        "id": "minimalist",
+        "name": "Minimalist",
+        "description": "Clean minimalist design",
+        "prompt_suffix": ", minimalist design, simple composition, clean lines, limited color palette",
+        "negative_prompt": "detailed, complex, busy, cluttered, low quality",
+        "cfg_scale": 6.5,
+        "sampler": "Euler",
+        "steps": 20
+    },
+    {
+        "id": "vintage",
+        "name": "Vintage",
+        "description": "Retro vintage style",
+        "prompt_suffix": ", vintage style, retro aesthetic, aged film, nostalgic atmosphere, warm tones",
+        "negative_prompt": "modern, futuristic, digital, low quality, blurry",
+        "cfg_scale": 7,
+        "sampler": "Euler a",
+        "steps": 25
+    },
+    {
+        "id": "cyberpunk",
+        "name": "Cyberpunk",
+        "description": "Neon cyberpunk cityscape",
+        "prompt_suffix": ", cyberpunk city, neon lights, futuristic architecture, rain, night time, highly detailed",
+        "negative_prompt": "historical, medieval, realistic, low quality, blurry",
+        "cfg_scale": 8,
+        "sampler": "DPM++ 2M Karras",
+        "steps": 30
+    },
+    {
+        "id": "gothic",
+        "name": "Gothic",
+        "description": "Dark gothic atmosphere",
+        "prompt_suffix": ", gothic style, dark atmosphere, dramatic lighting, mysterious, highly detailed",
+        "negative_prompt": "bright, cheerful, cartoon, low quality, blurry",
+        "cfg_scale": 7.5,
+        "sampler": "DPM++ 2M",
+        "steps": 28
+    },
+    {
+        "id": "surreal",
+        "name": "Surreal",
+        "description": "Dreamlike surreal art",
+        "prompt_suffix": ", surreal art, dreamlike atmosphere, impossible geometry, artistic, highly detailed",
+        "negative_prompt": "realistic, photograph, low quality, blurry",
+        "cfg_scale": 7.5,
+        "sampler": "DPM++ 2M",
+        "steps": 28
+    },
+    {
+        "id": "pixel_art",
+        "name": "Pixel Art",
+        "description": "8-bit pixel art style",
+        "prompt_suffix": ", pixel art, 8-bit style, retro video game, limited color palette, blocky pixels",
+        "negative_prompt": "realistic, high resolution, photograph, modern art, low quality",
+        "cfg_scale": 6,
+        "sampler": "Euler",
+        "steps": 20
+    }
+]
