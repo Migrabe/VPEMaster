@@ -143,16 +143,12 @@
       flex-shrink: 0;
     }
 
-      <div class="header-left">
-        <div class="logo">VPE</div>
-        <div>
-          <h1>VPE Prompt Builder 2026 <sup>v4.0</sup></h1>
-          <div id="hosting-info" style="font-size: 0.7em; color: var(--muted); margin-top: 4px;">
-            <span id="hosting-status">Checking host...</span>
-            <a id="render-link" href="#" target="_blank" style="color: var(--accent-k); display: none; margin-left:10px;">Go to Full Version (Render) →</a>
-          </div>
-        </div>
-      </div>
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 0;
+    }
 
     .header-right {
       display: flex;
@@ -1680,21 +1676,28 @@
 
   <div class="wrap">
     <div class="app">
-      <!-- HEADER -->
-      <!-- HEADER -->
       <header class="header">
         <div class="header-left">
           <div class="logo">VPE</div>
           <div>
             <div class="brand-line">
-              <h1>VPE Prompt Builder 2026 <span style="color:var(--accent-k); font-family:'Space Mono', monospace; font-size:0.8em;">v4.0</span></h1>
+              <h1>VPE Prompt Builder 2026 <span
+                  style="color:var(--accent-k); font-family:'Space Mono', monospace; font-size:0.8em;">v4.0</span></h1>
             </div>
-            <div class="build-note">Midjourney / DALL·E 3 / Stable Diffusion / Flux / Ideogram / Gemini Imagen / ChatGPT Image / Nano Banana Pro • Full prompt logic preserved</div>
+            <div id="hosting-info"
+              style="font-size: 0.75em; color: var(--muted); margin-top: 4px; display: flex; align-items: center; gap: 8px;">
+              <span id="hosting-status" style="font-weight: 600;">Checking host...</span>
+              <a id="render-link" href="https://vpe-master-wide.onrender.com" target="_blank"
+                style="color: var(--accent-k); display: none; text-decoration: underline;">Go to Full Version (Render)
+                →</a>
+            </div>
+            <div class="build-note" style="margin-top: 2px;">Midjourney / DALL·E 3 / Stable Diffusion / Flux / Ideogram
+              / Gemini Imagen / ChatGPT Image / Nano Banana Pro</div>
           </div>
         </div>
         <div class="header-right">
           <button class="option-btn action-btn" id="headerCollapseBtn" data-action-id="collapse-all">Свернуть</button>
-          <button class="option-btn action-btn" id="headerResetBtn" data-action-id="header-reset"></button>
+          <button class="option-btn action-btn" id="headerResetBtn" data-action-id="header-reset">Reset</button>
         </div>
       </header>
 
@@ -2722,7 +2725,9 @@
           </div>
           <div class="section collapsed" id="lightingSectionV2">
             <div class="section-header" data-bound="true">
-              <h2><span class="icon icon-orange">💡</span> Освещение <span class="help-tip">?<span class="tip-text">Единое меню для задания характера и направления света, включая время суток и студийные схемы.</span></span></h2><span class="mode-badge">multi</span>
+              <h2><span class="icon icon-orange">💡</span> Освещение <span class="help-tip">?<span
+                    class="tip-text">Единое меню для задания характера и направления света, включая время суток и
+                    студийные схемы.</span></span></h2><span class="mode-badge">multi</span>
             </div>
             <div class="section-content">
               <div class="option-group" id="lightingGroupV2">
@@ -2786,7 +2791,8 @@
                   class="option-btn" data-group="lightType"
                   data-value="screen glow, cool blue light from below face, dark room, digital obsession mood"
                   title="screen glow, cool blue light from below face, dark room, digital obsession mood">Свет от
-                  экрана</button></div>
+                  экрана</button>
+              </div>
             </div>
           </div>
           <div class="section collapsed" id="paletteSectionV2">
