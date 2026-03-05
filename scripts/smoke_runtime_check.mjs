@@ -134,6 +134,67 @@ function run() {
     "Fashion/Food style must be cleared when Quick Style is active"
   );
 
+  const photoVsCinema = computeFromState({
+    promptFormat: "flat",
+    aiModel: "stable-diffusion",
+    mainSubject: "editorial portrait",
+    photoStyle: "in the style of Annie Leibovitz, dramatic portrait lighting, rich colors",
+    cinemaStyle: "shot by Roger Deakins, naturalistic lighting, golden hour realism"
+  });
+  assert(
+    photoVsCinema.json?.parameters?.photo_style,
+    "Photo style must be preserved in photoStyle + cinemaStyle conflict"
+  );
+  assert(
+    !photoVsCinema.json?.parameters?.cinema_style,
+    "Cinema style must be pruned when photo style conflicts"
+  );
+
+  const photoVsDirector = computeFromState({
+    promptFormat: "flat",
+    aiModel: "stable-diffusion",
+    mainSubject: "editorial portrait",
+    photoStyle: "in the style of Annie Leibovitz, dramatic portrait lighting, rich colors",
+    directorStyle: "in the style of Christopher Nolan, IMAX realism, practical effects"
+  });
+  assert(
+    photoVsDirector.json?.parameters?.photo_style,
+    "Photo style must be preserved in photoStyle + directorStyle conflict"
+  );
+  assert(
+    !photoVsDirector.json?.parameters?.director_style,
+    "Director style must be pruned when photo style conflicts"
+  );
+
+  const nonCollabCinemaDirector = computeFromState({
+    promptFormat: "flat",
+    aiModel: "stable-diffusion",
+    mainSubject: "editorial portrait",
+    cinemaStyle: "shot by Roger Deakins, naturalistic lighting, golden hour realism",
+    directorStyle: "in the style of Christopher Nolan, IMAX realism, practical effects"
+  });
+  assert(
+    nonCollabCinemaDirector.json?.parameters?.cinema_style,
+    "Cinema style must remain when non-collab director/cinema pair conflicts"
+  );
+  assert(
+    !nonCollabCinemaDirector.json?.parameters?.director_style,
+    "Non-collab director style must be pruned from output"
+  );
+
+  const knownCollabCinemaDirector = computeFromState({
+    promptFormat: "flat",
+    aiModel: "stable-diffusion",
+    mainSubject: "editorial portrait",
+    cinemaStyle: "shot by Hoyte van Hoytema, IMAX large format, deep contrast",
+    directorStyle: "in the style of Christopher Nolan, IMAX realism, practical effects"
+  });
+  assert(
+    knownCollabCinemaDirector.json?.parameters?.cinema_style &&
+    knownCollabCinemaDirector.json?.parameters?.director_style,
+    "Known director/cinematographer collaboration must stay enabled"
+  );
+
   const motionBlurVsGenerate = computeFromState({
     promptFormat: "flat",
     aiModel: "stable-diffusion",
@@ -161,6 +222,36 @@ function run() {
     !/medium shot/i.test(seamlessVsShot.prompt),
     "Seamless pattern must prune non-flat-lay shot size"
   );
+
+  const dallENegative = computeFromState({
+    promptFormat: "flat",
+    aiModel: "dall-e-3",
+    mainSubject: "poster concept",
+    negativePrompt: "bad anatomy, blur"
+  });
+  assert(
+    !Object.prototype.hasOwnProperty.call(dallENegative.json || {}, "negative"),
+    "DALL-E 3 output must not include negative prompt field"
+  );
+
+  const fluxNegative = computeFromState({
+    promptFormat: "flat",
+    aiModel: "flux",
+    mainSubject: "poster concept",
+    negativePrompt: "bad anatomy, blur"
+  });
+  assert(
+    !Object.prototype.hasOwnProperty.call(fluxNegative.json || {}, "negative"),
+    "Flux output must not include negative prompt field"
+  );
+
+  const sdNegative = computeFromState({
+    promptFormat: "flat",
+    aiModel: "stable-diffusion",
+    mainSubject: "poster concept",
+    negativePrompt: "bad anatomy, blur"
+  });
+  assert(sdNegative.json?.negative === "bad anatomy, blur", "Stable Diffusion must keep negative prompt field");
 
   console.log("Runtime smoke checks passed.");
 }

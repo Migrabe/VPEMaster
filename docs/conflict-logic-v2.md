@@ -58,8 +58,11 @@ Conflict logic runs in **two layers**:
 
 ### 10. Style conflicts
 - Anamorphic lens ↔ non-cinema purpose — last-write-wins via prevState.
-- photoStyle conflicts with cinemaStyle/directorStyle (different domains).
-- cinemaStyle + directorStyle allowed only for known collaboration pairs.
+- photoStyle conflicts with cinemaStyle/directorStyle (different domains) and is pruned deterministically.
+- cinemaStyle + directorStyle is allowed only for known collaboration pairs; unknown pairs are pruned by last-write-wins.
+
+### 10.1 Engine payload compatibility
+- `negative` prompt field is stripped for `dall-e-3` and `flux` payloads.
 
 ### 11. Taxonomy rules (JSON-driven)
 - External rules from `public/config/taxonomy-rules.json`.

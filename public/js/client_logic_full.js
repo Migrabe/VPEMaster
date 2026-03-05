@@ -276,7 +276,7 @@ const QUICK_STYLES = {
 
   "once-upon-a-time-in-hollywood": "Once Upon a Time In Hollywood Quentin Tarantino period Los Angeles cinematography, Robert Richardson nostalgic analog glow. LIGHTING: sun-drenched California daylight, warm practical tungsten in vintage interiors, neon boulevard nights with reflective car surfaces, golden-hour smog haze, hard directional light for period authenticity. COLOR GRADING: warm Kodak-like film palette, rich yellows and amber skin tones, faded 1960s signage colors, controlled contrast with gentle highlight roll-off, grain-forward analog texture. TECHNICAL: anamorphic widescreen compositions, period-accurate camera movement restraint, long observational takes, practical locations and signage emphasis, 35mm film grain character, immersive production-design framing. ATMOSPHERE: late-60s Hollywood nostalgia, melancholy glamour, cultural transition, laid-back tension. QUALITY: photorealistic filmic texture, 8K scan quality, Academy Award-winning production design, auteur period-cinema authenticity.",
 
-  "amelie": "AmГ©lie Jean-Pierre Jeunet whimsical Parisian cinematography, Bruno Delbonnel painterly warmth. LIGHTING: warm golden Parisian light, cozy interior cafГ© and apartment lighting, soft diffused natural window light, warm tungsten practical sources, romantic evening streetlights, nostalgic warm glow throughout. COLOR GRADING: vibrant warm palette dominated by reds yellows greens, desaturated blues creating teal-orange separation, painterly color grading, nostalgic postcard Paris aesthetic, high saturation in warm tones, storybook color treatment. TECHNICAL: whimsical camera movements and snap zooms, centered symmetrical compositions, shallow depth of field (f/2), creative transitions and visual effects, playful camera angles, miniature tilt-shift sequences. ATMOSPHERE: whimsical Parisian romance, magical realism, quirky charm, nostalgic warmth, fairy tale Paris, innocent wonder, visual poetry. QUALITY: photorealistic with stylized color, 8K resolution, CГ©sar Award-winning cinematography, iconic French cinema aesthetic.",
+  "amelie": "Amélie Jean-Pierre Jeunet whimsical Parisian cinematography, Bruno Delbonnel painterly warmth. LIGHTING: warm golden Parisian light, cozy interior café and apartment lighting, soft diffused natural window light, warm tungsten practical sources, romantic evening streetlights, nostalgic warm glow throughout. COLOR GRADING: vibrant warm palette dominated by reds yellows greens, desaturated blues creating teal-orange separation, painterly color grading, nostalgic postcard Paris aesthetic, high saturation in warm tones, storybook color treatment. TECHNICAL: whimsical camera movements and snap zooms, centered symmetrical compositions, shallow depth of field (f/2), creative transitions and visual effects, playful camera angles, miniature tilt-shift sequences. ATMOSPHERE: whimsical Parisian romance, magical realism, quirky charm, nostalgic warmth, fairy tale Paris, innocent wonder, visual poetry. QUALITY: photorealistic with stylized color, 8K resolution, César Award-winning cinematography, iconic French cinema aesthetic.",
 
   "shinkai-vibes": "Makoto Shinkai anime aesthetic. LIGHTING: brilliant lens flares, god rays piercing through clouds, hyper-realistic lighting, golden hour magic, bioluminescent night scenes, star-filled skies, vibrant city lights. COLOR GRADING: hyper-vibrant saturated colors, azure blue skies, emerald greens, impossible sunsets with purple and pink gradients, high contrast but airy feel. TECHNICAL: wide angle establishing shots of cityscapes and nature, extreme attention to detail in background art, photorealistic clouds and water, crisp sharp lines, digital animation perfection. ATMOSPHERE: emotional longing, separation, bittersweet romance, urban fantasy, everyday magic, breathtaking beauty. QUALITY: 8K anime wallpaper, Comix Wave Films production quality, masterpiece animation.",
 
@@ -309,7 +309,7 @@ const FASHION_FOOD_STYLES = {
   // Food
   "fast-food-pop": "High-end fast food commercial photography (McDonald's / Burger King style). LIGHTING: bright high-key studio lighting, multiple rim lights to define textures, hard main light for \"pop\". COLOR GRADING: hyper-saturated, warm appetizing tones (reds, yellows, browns), zero shadows on product. TECHNICAL: macro lens (100mm), focus stacking for front-to-back sharpness, \"hero\" angle (low and wide). QUALITY: mouth-watering, perfect food styling, glistening textures, condensation droplets, 8K advertising.",
   "fine-dining": "Michelin star restaurant photography, Chef's Table aesthetic. LIGHTING: single dramatic spotlight (snoot), deep shadows, moody chiaroscuro, highlighting specific textures. COLOR GRADING: dark slate background, rich jewel tones for food, cool shadows, high contrast. TECHNICAL: top-down (flat lay) or 45-degree angle, macro details, shallow depth of field isolating the garnish. QUALITY: culinary art, sophisticated, molecular gastronomy details, elegant, luxurious texture.",
-  "rustic-lifestyle": "Bon AppГ©tit / Kinfolk magazine lifestyle food photography. LIGHTING: natural window light (side or back), soft shadows, white bounce card fill, \"morning light\" feel. COLOR GRADING: natural earthy tones, matte finish, slightly lifted blacks, filmic aesthetic. TECHNICAL: 50mm lens, natural composition (crumbs, napkins visible), \"human element\" (hands or depth), overhead shot. QUALITY: authentic, organic, appetizing, homemade feel, editorial food blog.",
+  "rustic-lifestyle": "Bon Appétit / Kinfolk magazine lifestyle food photography. LIGHTING: natural window light (side or back), soft shadows, white bounce card fill, \"morning light\" feel. COLOR GRADING: natural earthy tones, matte finish, slightly lifted blacks, filmic aesthetic. TECHNICAL: 50mm lens, natural composition (crumbs, napkins visible), \"human element\" (hands or depth), overhead shot. QUALITY: authentic, organic, appetizing, homemade feel, editorial food blog.",
   "cafe-moody": "Artisan coffee shop / bakery dark moody aesthetic. LIGHTING: dim ambient light, warm tungsten bulbs, visible steam backlight, cozy shadows. COLOR GRADING: warm wood tones, deep browns and creams, cozy and inviting temperature. TECHNICAL: shallow depth of field (f/1.8), focus on steam or foam texture, bokeh background of cafe. QUALITY: hygge, comforting, texture-heavy (wood, ceramic, foam), atmospheric.",
   "beverage-splash": "High-speed beverage advertising photography. LIGHTING: high-speed sync flash, strong backlighting to make liquid glow, hard contoured reflections. COLOR GRADING: cool refreshing tones, vibrant fruit colors, absolute black background or gradient. TECHNICAL: frozen motion (1/8000s shutter), macro details of droplets and condensation, razor sharp. QUALITY: refreshing, commercial perfection, crystal clear liquid, dynamic splash, production value.",
 
@@ -930,6 +930,10 @@ function clearShotSelectionsByPredicate(st, predicate) {
   if (predicate(st.composition || "")) clearStateField(st, "composition");
 }
 
+function hasValueChanged(nextValue, prevValue) {
+  return normalizeRuleToken(nextValue) !== normalizeRuleToken(prevValue);
+}
+
 function enforceOutputStateRules(st, prevState) {
   if (!st || typeof st !== "object") return st;
   const prev = prevState || {};
@@ -1096,6 +1100,30 @@ function enforceOutputStateRules(st, prevState) {
   // P5: Neon в†’ B&W bidirectional conflict (reverse direction)
   if (getAllLightingSelections(st).some(isNeonLightToken) && /black and white/i.test(st.photoStyle || "")) {
     clearStateField(st, "photoStyle");
+  }
+
+  // Style-domain conflict pruning for deterministic API parity.
+  // photoStyle is mutually exclusive with cinemaStyle/directorStyle.
+  const photoChanged = hasValueChanged(st.photoStyle, prev.photoStyle);
+  const cinemaChanged = hasValueChanged(st.cinemaStyle, prev.cinemaStyle);
+  const directorChanged = hasValueChanged(st.directorStyle, prev.directorStyle);
+
+  if (st.photoStyle && st.cinemaStyle) {
+    if (photoChanged && !cinemaChanged) clearStateField(st, "cinemaStyle");
+    else if (!photoChanged && cinemaChanged) clearStateField(st, "photoStyle");
+    else clearStateField(st, "cinemaStyle");
+  }
+
+  if (st.photoStyle && st.directorStyle) {
+    if (photoChanged && !directorChanged) clearStateField(st, "directorStyle");
+    else if (!photoChanged && directorChanged) clearStateField(st, "photoStyle");
+    else clearStateField(st, "directorStyle");
+  }
+
+  if (st.cinemaStyle && st.directorStyle && !isKnownDirectorCinemaCollab(st.directorStyle, st.cinemaStyle)) {
+    if (cinemaChanged && !directorChanged) clearStateField(st, "directorStyle");
+    else if (!cinemaChanged && directorChanged) clearStateField(st, "cinemaStyle");
+    else clearStateField(st, "directorStyle");
   }
 
   if (st.quickStyle) {
@@ -2379,6 +2407,9 @@ function collectAdditional3x3Selections() {
 }
 
 function buildJson() {
+  const negativePrompt = (state.negativePrompt || "").trim();
+  const modelSupportsNegativePrompt = !["dall-e-3", "flux"].includes(state.aiModel);
+
   const engineParams = (function () {
     const m = state.aiModel;
     if (m === "midjourney") return { version: state.mjVersion, style: state.mjStyle || "default", stylize: state.mjStylize, chaos: state.mjChaos, weird: state.mjWeird, sref: (state.mjSref || "").trim() || undefined };
@@ -2484,7 +2515,7 @@ function buildJson() {
       seed: state.seed || undefined,
       engine_params: engineParams,
       references: referencesPayload,
-      negative: (state.negativePrompt || "").trim() || undefined
+      negative: modelSupportsNegativePrompt ? (negativePrompt || undefined) : undefined
     };
 
     return Object.assign({}, base3x3, pruneEmptyFields(selectedOptions) || {});
@@ -2572,7 +2603,7 @@ function buildJson() {
         role: state.aiModel === "midjourney" ? (i === 0 ? "omni-reference" : "style-reference") : undefined
       }))
     },
-    negative: (state.negativePrompt || "").trim() || ""
+    negative: modelSupportsNegativePrompt ? (negativePrompt || "") : undefined
   };
 
   return pruneEmptyFields(payload) || {};
