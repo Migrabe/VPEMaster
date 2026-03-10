@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: vpe-master-wide
+    env: node
+    plan: free
+    buildCommand: npm ci
+    startCommand: node server.js
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_VERSION
+        value: 20

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>VPE Mobile Offline</title>
+  <style>
+    :root {
+      color-scheme: dark;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: "Manrope", "Segoe UI", sans-serif;
+      color: #f5fbff;
+      background:
+        radial-gradient(circle at top left, rgba(121, 240, 255, 0.2), transparent 32%),
+        linear-gradient(180deg, #03101a 0%, #071723 100%);
+    }
+
+    .offline-card {
+      width: min(100%, 420px);
+      padding: 24px;
+      border-radius: 28px;
+      border: 1px solid rgba(126, 209, 255, 0.18);
+      background: rgba(8, 19, 31, 0.92);
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.24);
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 1.7rem;
+      line-height: 1.05;
+    }
+
+    p {
+      margin: 0 0 18px;
+      color: #9cb8c9;
+      line-height: 1.5;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    a,
+    button {
+      min-height: 44px;
+      padding: 11px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(126, 209, 255, 0.18);
+      background: rgba(255, 255, 255, 0.04);
+      color: inherit;
+      font: inherit;
+      text-decoration: none;
+    }
+
+    .primary {
+      background: linear-gradient(135deg, #79f0ff, #ffb36b);
+      color: #05131d;
+      border-color: transparent;
+      font-weight: 800;
+    }
+  </style>
+</head>
+<body>
+  <main class="offline-card">
+    <h1>Мобильная версия временно офлайн</h1>
+    <p>Сохраненная оболочка доступна, но для генерации промптов нужен интернет. Можно повторить загрузку или открыть полную версию сайта.</p>
+    <div class="actions">
+      <button class="primary" type="button" onclick="window.location.reload()">Повторить</button>
+      <a href="/?view=desktop">Полная версия</a>
+    </div>
+  </main>
+</body>
+</html>
