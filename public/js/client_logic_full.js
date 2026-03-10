@@ -2495,7 +2495,7 @@ function rebuildResolution() {
   const ar = state.aspectRatio;
   const info = $("resolutionInfo");
   const opts = $("resolutionOptions");
-  opts.innerHTML = "";
+  opts.textContent = "";
 
   if (!ar || !resolutionMap[ar]) {
     info.style.display = "block";
@@ -2677,43 +2677,87 @@ function removeImage(index) {
 
 function rebuildImageCards() {
   const previews = $("imagePreviews");
-  previews.innerHTML = "";
+  previews.textContent = "";
   state.referenceImages.forEach((img, idx) => {
     const card = document.createElement("div");
     card.className = "image-preview-card";
-    const extractChecks = REF_EXTRACT_OPTIONS.map((opt, oi) => {
-      const checked = (img.extract || []).includes(opt) ? "checked" : "";
-      return `<label class="ref-extract-label"><input type="checkbox" data-ext-img="${idx}" data-ext-opt="${oi}" ${checked}> ${opt}</label>`;
-    }).join("");
-    card.innerHTML = `
-          <button class="image-remove-btn" data-remove-index="${idx}">×</button>
-          <div><img src="${img.data}" alt="${esc(img.name)}"></div>
-          <div class="image-preview-details">
-            <div class="image-preview-info">
-              <div style="font-weight:800;color:var(--accent-light);margin-bottom:3px;">Изображение ${idx + 1}</div>
-              <div>${esc(img.name)} · ${esc(img.size)}</div>
-            </div>
-            <div class="ref-extract-row">${extractChecks}</div>
-            <textarea class="image-description-input" data-desc-index="${idx}" placeholder="Дополнительный extract: что ещё сохранить из этого изображения, например background, одного человека, одежду, свет...">${esc(img.description || "")}</textarea>
-          </div>`;
-    previews.appendChild(card);
-    // Wire extract checkboxes
-    card.querySelectorAll('[data-ext-img]').forEach(cb => {
+    // extractChecks refactored to use document.createElement below
+    const removeBtn = document.createElement("button");
+    removeBtn.className = "image-remove-btn";
+    removeBtn.dataset.removeIndex = String(idx);
+    removeBtn.textContent = "×";
+    removeBtn.addEventListener("click", () => removeImage(idx));
+
+    const imgDiv = document.createElement("div");
+    const imgEl = document.createElement("img");
+    imgEl.src = img.data;
+    imgEl.alt = img.name || "";
+    imgDiv.appendChild(imgEl);
+
+    const details = document.createElement("div");
+    details.className = "image-preview-details";
+
+    const infoOuter = document.createElement("div");
+    infoOuter.className = "image-preview-info";
+    
+    const indexLabel = document.createElement("div");
+    indexLabel.style.fontWeight = "800";
+    indexLabel.style.color = "var(--accent-light)";
+    indexLabel.style.marginBottom = "3px";
+    indexLabel.textContent = `Изображение ${idx + 1}`;
+    
+    const nameLabel = document.createElement("div");
+    nameLabel.textContent = `${img.name || ""} · ${img.size || ""}`;
+    
+    infoOuter.appendChild(indexLabel);
+    infoOuter.appendChild(nameLabel);
+
+    const extractRow = document.createElement("div");
+    extractRow.className = "ref-extract-row";
+    
+    REF_EXTRACT_OPTIONS.forEach((opt, oi) => {
+      const label = document.createElement("label");
+      label.className = "ref-extract-label";
+      
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.dataset.extImg = String(idx);
+      cb.dataset.extOpt = String(oi);
+      cb.checked = (img.extract || []).includes(opt);
+      
       cb.addEventListener('change', function () {
-        const ii = parseInt(this.dataset.extImg, 10), oo = parseInt(this.dataset.extOpt, 10), opt = REF_EXTRACT_OPTIONS[oo];
+        const ii = parseInt(this.dataset.extImg, 10), oo = parseInt(this.dataset.extOpt, 10), optName = REF_EXTRACT_OPTIONS[oo];
         if (!state.referenceImages[ii]) return;
         if (!state.referenceImages[ii].extract) state.referenceImages[ii].extract = [];
         const ex = state.referenceImages[ii].extract;
-        if (this.checked) { if (!ex.includes(opt)) ex.push(opt) } else { const i = ex.indexOf(opt); if (i >= 0) ex.splice(i, 1) }
+        if (this.checked) { if (!ex.includes(optName)) ex.push(optName) } else { const i = ex.indexOf(optName); if (i >= 0) ex.splice(i, 1) }
         updateAll();
       });
+      
+      label.appendChild(cb);
+      label.appendChild(document.createTextNode(` ${opt}`));
+      extractRow.appendChild(label);
     });
-    card.querySelector(`[data-remove-index="${idx}"]`).addEventListener("click", () => removeImage(idx));
-    card.querySelector(`[data-desc-index="${idx}"]`).addEventListener("input", (ev) => {
-      const i = parseInt(ev.target.dataset.descIndex, 10);
-      if (state.referenceImages[i]) state.referenceImages[i].description = ev.target.value;
+
+    const descInput = document.createElement("textarea");
+    descInput.className = "image-description-input";
+    descInput.dataset.descIndex = String(idx);
+    descInput.placeholder = "Дополнительный extract: что ещё сохранить из этого изображения, например background, одного человека, одежду, свет...";
+    descInput.value = img.description || "";
+    descInput.addEventListener("input", (ev) => {
+      const dIdx = parseInt(ev.target.dataset.descIndex, 10);
+      if (state.referenceImages[dIdx]) state.referenceImages[dIdx].description = ev.target.value;
       updateAll();
     });
+
+    details.appendChild(infoOuter);
+    details.appendChild(extractRow);
+    details.appendChild(descInput);
+
+    card.appendChild(removeBtn);
+    card.appendChild(imgDiv);
+    card.appendChild(details);
+    previews.appendChild(card);
   });
 }
 
@@ -3816,13 +3860,24 @@ function shouldRequireJsonFieldForCurrentState(key, resolvedModel, activeModelFo
 // =============================================
 function updateActiveTags() {
   const area = $("activeTags");
-  area.innerHTML = "";
+  area.textContent = "";
 
   const addTag = (label, value, type, onRemove) => {
     const tag = document.createElement("span");
     tag.className = `tag-item ${type || ""}`.trim();
-    tag.innerHTML = `<span>${esc(label)}: <b>${esc(value)}</b></span><span class="remove">×</span>`;
-    tag.querySelector(".remove").addEventListener("click", onRemove);
+    const labelSpan = document.createElement("span");
+    labelSpan.textContent = `${label}: `;
+    const valueB = document.createElement("b");
+    valueB.textContent = value;
+    labelSpan.appendChild(valueB);
+    
+    const removeBtn = document.createElement("span");
+    removeBtn.className = "remove";
+    removeBtn.textContent = "×";
+    removeBtn.addEventListener("click", onRemove);
+    
+    tag.appendChild(labelSpan);
+    tag.appendChild(removeBtn);
     area.appendChild(tag);
   };
 
@@ -4984,12 +5039,12 @@ function checkConflicts() {
 
 // FIX: safeCopy with visual feedback and fallback
 function safeCopy(text, label, btn) {
-  const originalText = btn ? btn.innerHTML : "";
+  const originalText = btn ? btn.textContent : "";
   const success = () => {
     notify(label + " скопирован");
     if (btn) {
-      btn.innerHTML = "✅ Скопировано!";
-      setTimeout(() => btn.innerHTML = originalText, 2000);
+      btn.textContent = "✅ Скопировано!";
+      setTimeout(() => btn.textContent = originalText, 2000);
     }
   };
 
@@ -5170,7 +5225,7 @@ function resetAll() {
   });
 
   $("imagePreviewContainer").style.display = "none";
-  $("imagePreviews").innerHTML = "";
+  $("imagePreviews").textContent = "";
   $("modelHint").style.display = "none";
 
   // Clear UI — buttons, conflict states, toggle labels
@@ -5192,7 +5247,7 @@ function resetAll() {
 
   $("resolutionInfo").style.display = "block";
   $("resolutionOptions").style.display = "none";
-  $("resolutionOptions").innerHTML = "";
+  $("resolutionOptions").textContent = "";
 
   updateAll();
   notify("Всё сброшено");
@@ -5212,9 +5267,12 @@ async function enhancePrompt() {
   if (!text) { ta.placeholder = 'Сначала введите идею...'; return; }
 
   const btn = document.getElementById('enhanceBtn');
-  const originalContent = btn.innerHTML;
+  const originalContent = btn.textContent;
   btn.classList.add('loading');
-  btn.innerHTML = '<span>⏳</span> Улучшаю...';
+  btn.textContent = "";
+  const spin = document.createElement("span"); spin.textContent = "⏳";
+  btn.appendChild(spin);
+  btn.appendChild(document.createTextNode(" Улучшаю..."));
   btn.disabled = true;
 
   try {
@@ -5252,7 +5310,8 @@ Original idea: "${text}"`;
   }
 
   btn.classList.remove('loading');
-  btn.innerHTML = originalContent;
+  btn.innerHTML = ""; // Clear spinner
+  btn.textContent = originalContent;
   btn.disabled = false;
 }
 

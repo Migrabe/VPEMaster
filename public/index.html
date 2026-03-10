@@ -1678,47 +1678,49 @@
     }
 
     #generationModeSection.generation-inline {
+      display: block;
+    }
+
+    #generationModeSection.generation-inline .section-header {
+      margin-bottom: 0;
       display: flex;
       align-items: center;
       gap: 12px;
     }
 
-    #generationModeSection.generation-inline .section-header {
-      margin-bottom: 0;
-      flex: 0 0 auto;
-    }
-
-    #generationModeSection.generation-inline .section-content {
-      margin-top: 0;
+    #generationModeSection.generation-inline .section-header h2 {
       flex: 1 1 auto;
       min-width: 0;
     }
 
-    #generationModeSection.generation-inline .toggle-row {
-      flex-wrap: nowrap;
-      gap: 8px;
+    #generationModeSection.generation-inline .generation-inline-header-tools {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      flex: 0 0 auto;
     }
 
-    #generationModeSection.generation-inline .toggle-row .toggle-label {
-      flex: 1 1 0;
-      min-width: 0;
+    #generationModeSection.generation-inline .generation-inline-switch {
       margin: 0;
+      padding: 8px 10px;
+      min-width: auto;
+      justify-content: center;
     }
 
-    #generationModeSection.generation-inline .toggle-row .toggle-label span {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    #generationModeSection.generation-inline .generation-inline-header-tools .help-tip {
+      margin-left: 0;
     }
 
     @media (max-width: 1200px) {
-      #generationModeSection.generation-inline {
-        flex-direction: column;
+      #generationModeSection.generation-inline .section-header {
+        flex-wrap: wrap;
         align-items: stretch;
       }
 
-      #generationModeSection.generation-inline .toggle-row {
-        flex-wrap: wrap;
+      #generationModeSection.generation-inline .generation-inline-header-tools {
+        width: 100%;
+        justify-content: space-between;
       }
     }
 
@@ -4028,43 +4030,15 @@
             <div class="section generation-inline no-collapse" id="generationModeSection"
               style="border: 2px solid var(--accent); background: rgba(108, 92, 231, 0.05);">
               <div class="section-header" data-bound="true">
-                <h2><span class="icon icon-orange">✨</span> Режим генерации <span class="help-tip">?<span
-                      class="tip-text"><b>Generate 4</b> — создаёт 4 отдельных изображения с разными
-                      кинематографическими
-                      ракурсами: Low Angle, Cowboy Shot, Dutch Angle, Three-Quarter. Блокирует объектив, угол и план
-                      (они
-                      заданы в вариациях). Если заполнено «Описание сцены», слово subject заменяется на ваш
-                      текст.<br><br><b>3×3 Contact Sheet</b> — кинематографический контакт-лист из 9 кадров (от ELS до
-                      ECU
-                      +
-                      вид сверху/снизу) в единой сетке. Блокирует объектив, диафрагму, угол, план.<br><br><b>🔒 Макс.
-                        консистентность</b> — добавляет протокол Identity Lock: все черты лица, волос, кожи,
-                      телосложения
-                      и
-                      одежды фиксируются и не меняются между кадрами. Идеально для серий изображений одного
-                      персонажа.<br><br>Все три режима можно комбинировать кроме Generate 4 + 3×3
-                      (взаимоисключающие).</span></span></h2>
-              </div>
-              <div class="section-content">
-                <div class="toggle-row">
-                  <label class="toggle-label" id="generateFourModeLabel"
-                    style="flex:1; display:flex; justify-content:space-between; font-weight:bold; color:var(--accent-light);"
-                    title="">
-                    <span>🎬 4 Вариации (Gen 4)</span>
-                    <input type="checkbox" id="generateFourMode">
+                <h2><span class="icon icon-orange">✨</span> Макс. консистентность</h2>
+                <div class="generation-inline-header-tools">
+                  <label class="toggle-label generation-inline-switch" id="maxConsistencyLabel" title="">
+                    <input type="checkbox" id="maxConsistency" aria-label="Макс. консистентность">
                   </label>
-                  <label class="toggle-label" id="grid3x3ModeLabel"
-                    style="flex:1; display:flex; justify-content:space-between; font-weight:bold; color:var(--green);"
-                    title="">
-                    <span>📐 Контакт-лист 3×3</span>
-                    <input type="checkbox" id="grid3x3Mode">
-                  </label>
-                  <label class="toggle-label" id="maxConsistencyLabel"
-                    style="flex:1; display:flex; justify-content:space-between; font-weight:bold; color:var(--orange);"
-                    title="">
-                    <span>🔒 Макс. консистентность</span>
-                    <input type="checkbox" id="maxConsistency">
-                  </label>
+                  <span class="help-tip">?<span class="tip-text"><b>🔒 Макс. консистентность</b> — включает протокол
+                        Identity Lock: черты лица, волосы, кожа, телосложение и одежда фиксируются и сохраняются между
+                        кадрами. Лучше всего работает с загруженными референсами, но не сбрасывает ваши текущие
+                        параметры и значения.</span></span>
                 </div>
               </div>
             </div>
@@ -5553,23 +5527,39 @@
             <div class="section collapsed" id="specialModesSection">
               <div class="section-header" data-bound="true">
                 <h2><span class="icon icon-green">✨</span> Специальные режимы <span class="help-tip">?<span
-                      class="tip-text"><b>Before/After</b> — генерирует изображение-сравнение «до и после» в формате
-                      side-by-side. Идеально для демонстрации обработки, реставрации, макияжа.<br><br><b>Seamless
-                        Pattern</b> — создаёт бесшовный тайловый паттерн для фонов, текстиля, обоев. Рекомендуется с
-                      композицией Flat Lay.<br><br><b>Seed</b> — фиксирует зерно генерации для воспроизводимости
-                      результата.
-                      Один seed + те же параметры ≈ одинаковый результат.<br><br>Режимы взаимоисключающие между собой и
-                      с
-                      Generate 4 / 3×3.</span></span></h2>
+                      class="tip-text"><b>Generate 4</b> — создаёт 4 отдельных изображения с разными
+                      кинематографическими ракурсами и переопределяет план, угол и часть композиции.<br><br><b>3×3
+                        Contact Sheet</b> — собирает сетку из 9 кадров в одном изображении и переопределяет объектив,
+                      диафрагму, угол и план.<br><br><b>Before/After</b> — генерирует изображение-сравнение «до и
+                      после» в формате side-by-side.<br><br><b>Seamless Pattern</b> — создаёт бесшовный тайловый
+                      паттерн для фонов, текстиля и обоев.<br><br><b>Seed</b> — фиксирует зерно генерации для
+                      воспроизводимости результата. Generate 4 и 3×3 взаимоисключающие, а все режимы блока конфликтуют
+                      с Motion Blur.</span></span></h2>
               </div>
               <div class="section-content">
                 <div class="toggle-row">
-                  <!-- generateFourMode moved to top -->
-                  <label class="toggle-label" id="beforeAfterLabel" title=""><input type="checkbox" id="beforeAfter">
-                    До/После</label>
-                  <label class="toggle-label" id="seamlessPatternLabel" title=""><input type="checkbox"
-                      id="seamlessPattern">
-                    Бесшовный узор</label>
+                  <label class="toggle-label" id="generateFourModeLabel"
+                    style="flex:1; display:flex; justify-content:space-between; font-weight:bold; color:var(--accent-light);"
+                    title="">
+                    <span>🎬 4 Вариации (Gen 4)</span>
+                    <input type="checkbox" id="generateFourMode">
+                  </label>
+                  <label class="toggle-label" id="grid3x3ModeLabel"
+                    style="flex:1; display:flex; justify-content:space-between; font-weight:bold; color:var(--green);"
+                    title="">
+                    <span>📐 Контакт-лист 3×3</span>
+                    <input type="checkbox" id="grid3x3Mode">
+                  </label>
+                  <label class="toggle-label" id="beforeAfterLabel"
+                    style="flex:1; display:flex; justify-content:space-between;" title="">
+                    <span>До/После</span>
+                    <input type="checkbox" id="beforeAfter">
+                  </label>
+                  <label class="toggle-label" id="seamlessPatternLabel"
+                    style="flex:1; display:flex; justify-content:space-between;" title="">
+                    <span>Бесшовный узор</span>
+                    <input type="checkbox" id="seamlessPattern">
+                  </label>
                 </div>
                 <span class="sub-label">Seed ID <span class="help-tip">?<span class="tip-text">Seed (зерно) —
                       числовой

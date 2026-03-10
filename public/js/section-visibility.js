@@ -76,10 +76,10 @@
   ];
 
   const COMPOSITE_SECTION_STATE_DEFAULTS = {
-    generationModeSection: { generateFourMode: false, grid3x3Mode: false, maxConsistency: false },
+    generationModeSection: { maxConsistency: false },
     presetsSection: { isStandardPresetActive: false },
     referencesSection: { referenceImages: [] },
-    specialModesSection: { beforeAfter: false, seamlessPattern: false },
+    specialModesSection: { generateFourMode: false, grid3x3Mode: false, beforeAfter: false, seamlessPattern: false },
     motionBlurSectionV2: {
       motionBlurMode: false,
       motionBlurBackgroundEnabled: false,

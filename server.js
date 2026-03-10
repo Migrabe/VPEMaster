@@ -34,7 +34,7 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'"], // unsafe-inline is needed for some legacy scripts, but we should aim to remove it
+        scriptSrc: ["'self'"], // Removed unsafe-inline for better security
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
         imgSrc: ["'self'", "data:", "blob:"],
@@ -49,7 +49,28 @@ app.use(cors({ origin: false })); // lock down behind your reverse proxy / same-
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true }));
 
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 15 * 1024 * 1024, files: 13 } });
+const upload = multer({ 
+  storage: multer.memoryStorage(), 
+  limits: { fileSize: 15 * 1024 * 1024, files: 13 },
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(new Error("Only image files are allowed"), false);
+    }
+    cb(null, true);
+  }
+});
+
+function isSafeUrl(urlStr) {
+  try {
+    const url = new URL(urlStr);
+    return ["https:", "http:"].includes(url.protocol) && 
+           !["localhost", "127.0.0.1", "0.0.0.0"].includes(url.hostname) &&
+           !url.hostname.startsWith("192.168.") && 
+           !url.hostname.startsWith("10.");
+  } catch {
+    return false;
+  }
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const publicDir = path.join(path.dirname(__filename), "public");
@@ -118,12 +139,16 @@ app.post("/api/prompt", apiWriteLimiter, upload.array("images", 13), async (req,
       state = raw ? JSON.parse(raw) : {};
     }
 
+    if (!state || typeof state !== "object") {
+      return res.status(400).json({ error: "Invalid state object" });
+    }
+
     state = await normalizePromptRequestState(state, req.files ?? []);
 
     const out = computeFromState(state);
     res.json({ prompt: out.prompt, json: out.json, warnings: Array.isArray(out.warnings) ? out.warnings : [] });
   } catch (e) {
-    res.status(400).json({ error: "Bad request", details: String(e?.message ?? e) });
+    res.status(400).json({ error: "Bad request" });
   }
 });
 
@@ -142,19 +167,24 @@ app.post("/api/translate", apiWriteLimiter, async (req, res) => {
     if (!text) return res.status(400).json({ error: "Empty text" });
 
     // MyMemory is free but rate-limited; you should swap to a paid provider if needed.
-    const url = new URL("https://api.mymemory.translated.net/get");
+    const targetUrl = "https://api.mymemory.translated.net/get";
+    if (!isSafeUrl(targetUrl)) {
+      return res.status(400).json({ error: "Blocked URL" });
+    }
+    const url = new URL(targetUrl);
     url.searchParams.set("q", text);
     url.searchParams.set("langpair", `ru|${to}`);
 
     const r = await fetch(url.toString(), { method: "GET" });
     if (!r.ok) {
-      return res.status(502).json({ error: "Translate upstream failed", status: r.status });
+      return res.status(502).json({ error: "Translate upstream failed" });
     }
     const j = await r.json();
     const out = j?.responseData?.translatedText ?? "";
     res.json({ text: out || text });
   } catch (e) {
-    res.status(500).json({ error: "Translate failed", details: String(e?.message ?? e) });
+    console.error("Translate error:", e);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
